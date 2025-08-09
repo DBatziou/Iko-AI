@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Doto:wght@100..900&family=Mountains+of+Christmas:wght@400;700&family=Syne+Mono&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Syne+Mono&display=swap');
+
+
+.side {
+    position: absolute; /* Fixed to the viewport */
+    left: 0; /* Align to the left edge */
+    top: 0; /* Align to the top (adjust as needed) */
+    width: 30%; /* Fixed width */
+    height: auto; /* Height adjusts to content */
+     /* Add background to make div visible */
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 3cm;
+    margin-left: 3cm;
+}
+.side-image {
+    width: 60%;
+    height: auto;
+    position: absolute; /* Move within the .side div */
+    animation: moveRobot 5s infinite ease-in-out; /* Animation for movement */
+
+}
+
+@keyframes moveRobot {
+    0% { top: 50px; left: 10px; } /* Start below header */
+    50% { top: calc(100% - 60px); left: 10px; } /* Move to bottom of div */
+    100% { top: 50px; left: 10px; } /* Back to start */
+}
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgb(25, 33, 35);
+    padding: 3rem;
+    border-radius: 15px;
+    width: 500px;
+    margin: 2rem auto;
+    margin-top: 5rem;
+}
+
+.title{
+    display: inline-block;
+    padding: 0.0005cm 2px;
+    font-size: 0.8cm;
+    font-weight: bold;
+    color: #00ffd6; /* soft lavender text */
+    background: transparent;
+
+
+    text-align: center;
+    cursor: pointer;
+    font-family: "Doto", sans-serif; /* similar handwriting font */
+    text-decoration: none;
+    transition: 0.3s ease;
+
+
+}
+
+.inputField {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 2px solid #00ffd6;
+    border-radius: 8px;
+    background: rgb(31, 39, 43);
+    color: #00ffd6; /* soft lavender */
+    font-size: 1rem;
+}
+
+.inputField::placeholder {
+    color: #00ffd6;
+}
+
+.tabButtons {
+    display: inline-block;
+    padding: 12px 10px;
+    font-size: 1cm;
+    font-weight: bold;
+    color: #00ffd6; /* soft lavender text */
+    background: transparent;
+    /*border: 3px solid #c9a7f4; /* same lavender border */
+    /*border-radius: 30px;*/
+    text-align: center;
+    cursor: pointer;
+    font-family: "Doto", sans-serif; /* similar handwriting font */
+    text-decoration: none;
+    transition: 0.3s ease;
+    /*box-shadow: 0 0 5px rgba(201,167,244,0.4);*/
+}
+
+
+
+.tabButton {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 0.72cm;
+    font-weight: bold;
+    color: #00ffd6; /* soft lavender text */
+    background: transparent;
+    border: 2px solid #00ffd6; /* same lavender border */
+    border-radius: 40px;
+    text-align: center;
+    cursor: pointer;
+    margin-right: 3rem;
+    margin-left: 3rem;
+    font-family: "Doto", sans-serif; /* similar handwriting font */
+    text-decoration: none;
+    transition: 0.3s ease;
+    box-shadow: 0 0 5px rgb(0, 255, 214);
+}
+
+.tabButton.active {
+    background: #233531;
+    color: #00ffd6;
+}
+
+.tabButton:hover {
+    color: #fff; /* brighter text */
+    border-color: #b5fffd; /* slightly lighter lavender */
+    box-shadow:
+            0 0 10px #b5fffd,
+            0 0 20px #b5fffd,
+            0 0 40px #b5fffd; /* neon glow effect */
+    transform: scale(1.05); /* slight hover scale */
+}
+
+.loginButton {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 0.6cm;
+    font-weight: bold;
+    color: #00ffd6; /* soft lavender text */
+    background: transparent;
+    border: 2px solid #00ffd6; /* same lavender border */
+    border-radius: 30px;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Syne Mono', cursive; /* similar handwriting font */
+    text-decoration: none;
+    transition: 0.3s ease;
+    box-shadow: 0 0 5px rgb(0, 255, 214);
+}
+
+.loginButton:hover {
+    color: #fff; /* brighter text */
+    border-color: #d72dff; /* slightly lighter lavender */
+    box-shadow:
+            0 0 10px #d72dff,
+            0 0 20px #d72dff,
+            0 0 40px #d72dff; /* neon glow effect */
+    transform: scale(1.05); /* slight hover scale */
+}
+
+.message {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #00ffd6;
+}
+
+.blinking-cursor::after {
+    content: '_';              /* The cursor character */
+    animation: blink 1s steps(2, start) infinite;
+    margin-left: 2px;          /* space from the word */
+    color: #00ffd6;              /* cursor color */
+}
+
+@keyframes blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    50.01%, 100% {
+        opacity: 0;
+    }
+}
+
+/***************/
+
+/* A single glowing particle */
+/* Container that holds particles behind everything */
+.login-container {
+    position: relative;
+    height: 100vh;
+    background: #000; /* dark background for neon */
+    overflow: hidden;
+}
+
+/* Neon particle layer */
+.particles-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* so it doesn't block clicks */
+    z-index: 0;
+}
+
+/* Each glowing particle */
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    opacity: 0.8;
+    animation: floatAround ease-in-out infinite;
+}
+
+/* Floating movement */
+@keyframes floatAround {
+    0% {
+        transform: translateY(0px) scale(0.8);
+        opacity: 0.5;
+    }
+    50% {
+        transform: translateY(-50px) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0px) scale(0.8);
+        opacity: 0.3;
+    }
+}
+
+/* ✅ Make sure the form stays above */
+.wrapper {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+}

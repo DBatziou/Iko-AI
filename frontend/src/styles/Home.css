@@ -1,0 +1,460 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Doto:wght@100..900&family=Mountains+of+Christmas:wght@400;700&family=Syne+Mono&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Syne+Mono&display=swap');
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  background: radial-gradient(circle at center, #0a2723, #070c0c);
+  color: #93d8cb;
+  font-family: "Syne Mono", sans-serif;
+  overflow: hidden;
+}
+
+/* Main layout: sidebar + chat */
+.chatgpt-layout {
+  display: flex;           /* ✅ side by side */
+  height: 100vh;           /* ✅ fill viewport */
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Sidebar stays fixed height */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;           /* ✅ never shrink */
+  background: rgba(10, 39, 35, 0.72);
+  backdrop-filter: blur(12px);
+  border-right: 2px solid rgba(0, 255, 255, 0.2);
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+/* When collapsed */
+.sidebar.collapsed {
+  width: 80px; /* Just enough for icons */
+}
+/* Default menu text visible */
+.sidebar .menu {
+  opacity: 1;
+  transition: opacity 0.2s ease; /* Quick fade in/out */
+}
+
+/* When collapsed, instantly hide text */
+.sidebar.collapsed .menu {
+  opacity: 0;
+  transition: opacity 0s ease; /* No fade, just hidden */
+}
+
+/* When expanding back */
+.sidebar.expanding .menu {
+  opacity: 0; /* Keep hidden while expanding */
+}
+
+/* After fully expanded, show text */
+.sidebar.expanded .menu {
+  opacity: 1;
+  transition: opacity 0.2s ease; /* Fade in after width transition */
+}
+
+/* Keep sidebar text neat */
+.sidebar .menu h2 {
+  color: cyan;
+  text-shadow: 0 0 8px cyan;
+}
+.sidebar .menu ul {
+  list-style: none;
+  padding: 0;
+}
+.sidebar .menu li {
+  padding: 10px 0;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.sidebar .menu li:hover {
+  color: #0ff;
+  text-shadow: 0 0 5px #0ff;
+}
+
+/* Main chat expands fully */
+.main-chat {
+  flex: 1;                  /* ✅ take remaining space */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Chat messages scroll in available space */
+.chat-messages {
+  flex: 1;                  /* ✅ fill available space */
+  padding: 20px;
+  overflow-y: auto;
+  margin-bottom: 10px;      /* ✅ avoid sticking to input */
+}
+
+/* Welcome screen fills the same space */
+.welcome-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Input bar always at bottom */
+.chat-input {
+  display: flex;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid rgba(0, 255, 255, 0.2);
+}
+
+
+
+/* Neon chat look */
+.message.user {
+  background: rgba(0, 255, 255, 0.1);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-left: 3px solid cyan;
+  border-radius: 5px;
+}
+
+/* Buttons */
+.chat-input input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 10px;
+  font-family: inherit;
+  outline: none;
+}
+.neon-btn {
+  background: cyan;
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  text-shadow: 0 0 5px #000;
+  box-shadow: 0 0 10px cyan, 0 0 20px cyan;
+  transition: 0.3s;
+}
+.neon-btn:hover {
+  background: #0ff;
+  box-shadow: 0 0 15px cyan, 0 0 30px cyan;
+}
+
+/* By default, chat hasn't started */
+.chat-messages,
+.conversation-input {
+  display: none; /* hide messages + bottom input */
+}
+
+/* When conversation starts */
+.conversation-started .welcome-screen {
+  display: none; /* hide title + hints + center input */
+}
+.conversation-started .chat-messages,
+.conversation-started .conversation-input {
+  display: flex; /* show chat + bottom input */
+}
+
+/* Initial centered input for first message */
+.initial-input {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Prompt hint cards restored */
+.prompt-hints {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hint-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  cursor: pointer;
+  transition: 0.3s;
+}
+.hint-card:hover {
+  background: rgba(0, 255, 255, 0.1);
+  text-shadow: 0 0 5px cyan;
+}
+.mainChat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+/* Hide messages + bottom input before conversation starts */
+.chatMessages,
+.conversationInput {
+  display: none;
+}
+
+/* When conversation starts -> hide welcome, show chat */
+.conversationStarted .welcomeScreen {
+  display: none;
+}
+.conversationStarted .chatMessages,
+.conversationStarted .conversationInput {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Welcome Screen layout */
+.welcomeScreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Neon title + subtitle */
+.neonTitle {
+  font-size: 2.5rem;
+  color: cyan;
+  text-shadow: 0 0 10px cyan, 0 0 20px #0ff;
+}
+.neonSub {
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* Hint prompt cards */
+.promptHints {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hintCard {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  cursor: pointer;
+  transition: 0.3s;
+}
+.hintCard:hover {
+  background: rgba(0, 255, 255, 0.1);
+  text-shadow: 0 0 5px cyan;
+}
+
+/* Input styling */
+.chatInput {
+  display: flex;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid rgba(0, 255, 255, 0.2);
+}
+.chatInput input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 10px;
+  font-family: inherit;
+  outline: none;
+}
+
+/* Centered input for first message */
+.initialInput {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Chat messages layout */
+.chatMessages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+.message.user {
+  background: rgba(0, 255, 255, 0.1);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-left: 3px solid cyan;
+  border-radius: 5px;
+}
+
+/* Neon send button */
+.neonBtn {
+  background: cyan;
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  margin-left: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  text-shadow: 0 0 5px #000;
+  box-shadow: 0 0 10px cyan, 0 0 20px cyan;
+  transition: 0.3s;
+}
+.neonBtn:hover {
+  background: #0ff;
+  box-shadow: 0 0 15px cyan, 0 0 30px cyan;
+
+}
+
+.toggle-btn{
+  background: transparent;
+  color: white;
+  border-radius: 150%;
+  padding: 2px;
+  width: 0.9cm;
+  height: 0.9cm;
+  border: none;
+
+}
+.toggle-btn:hover{
+  background: #388181;
+  box-shadow: 0 0 15px cyan, 0 0 30px cyan;
+  cursor: pointer;
+
+
+}
+/* Sidebar content now uses flex column */
+.sidebar .menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+/* Keep the list normal */
+.sidebar .menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1; /* pushes profile section to bottom */
+}
+/* Make the profile button behave like other menu items */
+.profile-menu-item {
+  list-style: none;
+  margin-top: 10px;
+}
+/* Profile section pinned at bottom */
+.profile-section {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+/* Profile button look */
+.profile-image-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  color: cyan;
+  cursor: pointer;
+
+  text-align: left;
+  font-family: inherit;
+  font-size: 16px;
+  padding: 10px 0;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.profile-image-btn img {
+
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Perfect circle */
+  border: 2px solid cyan; /* Thin, tight neon border */
+  background: black; /* Keeps it clean against glow */
+  box-shadow: 0 0 4px rgba(0, 255, 255, 0.4); /* Very subtle glow */
+  object-fit: cover;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  /* ❌ REMOVE padding - it made the border look huge */
+}
+
+
+
+.profile-image-btn img:hover {
+
+  transform: scale(1.2);
+
+}
+
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  color: cyan;
+  cursor: pointer;
+
+  text-align: left;
+  font-family: inherit;
+  font-size: 16px;
+  padding: 10px 0;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.logout-btn img {
+
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Perfect circle */
+  border: 2px solid cyan; /* Thin, tight neon border */
+  background: #21dfba; /* Keeps it clean against glow */
+  box-shadow: 0 0 4px rgba(0, 255, 255, 0.4); /* Very subtle glow */
+  object-fit: cover;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  /* ❌ REMOVE padding - it made the border look huge */
+}
+
+.logout-btn img:hover {
+
+  transform: scale(1.2);
+
+}
+

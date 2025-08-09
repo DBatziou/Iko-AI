@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Hello Page</title>
+
+    <style>
+        .lists {
+            background: #f49d9d;
+            color: #0c2626;
+        }
+
+        .borders {
+            border: 1px solid #003eff;
+        }
+
+        .neon-blink {
+            color: #39ff14;
+            text-shadow:
+                    0 0 3px #39ff14,
+                    0 0 6px #39ff14,
+                    0 0 12px #0fa;
+            animation: neon-flicker 2s infinite alternate;
+        }
+
+        @keyframes neon-flicker {
+            0%, 100% {
+                text-shadow:
+                        0 0 3px #39ff14,
+                        0 0 6px #39ff14,
+                        0 0 12px #0fa;
+            }
+            50% {
+                text-shadow:
+                        0 0 1px #39ff14,
+                        0 0 3px #39ff14,
+                        0 0 8px #0fa;
+            }
+        }
+
+        @keyframes blink {
+            0%, 90% { opacity: 1; }
+            95%, 100% { opacity: 0; }
+        }
+    </style>
+
+
+</head>
+<body>
+
+<h1 class="neon-blink">This is the title</h1>
+<h2 class="lists">This is a subtitle</h2>
+<h6> This is the smallest heading</h6>
+
+
+<p>
+    This is a paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+</p>
+
+<a href="https://google.com">This is a link to Google</a>
+
+<div class="lists borders">
+    <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+        <li>Item 4</li>
+        <li>Item 5</li>
+    </ul>
+
+    <ol>
+        <li>First item</li>
+        <li>Second item</li>
+        <li>Third item</li>
+        <li>Fourth item</li>
+        <li>Fifth item</li>
+    </ol>
+</div>
+
+
+<table class="borders">
+    <thead class="borders">
+    <tr>
+        <th>id</th>
+        <th>User Name</th>
+        <th>Email</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>1</td>
+        <td>John Doe</td>
+        <td>jdoe@test.com</td>
+    </tr>
+    <tr class="borders">
+        <td>2</td>
+        <td>Jane Smith</td>
+        <td>janeDoe@test.com</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+
+
+</html>
