@@ -42,63 +42,63 @@ export default function LoginForm() {
 //    const handleSubmit = () => {
 //        if (mode === "login") {
 //            handleLogin();
-  //      } else {
-  //          handleSignUp();
+    //      } else {
+    //          handleSignUp();
 //        }
- //   };
+    //   };
 
-  //  async function handleLogin(e) {
+    //  async function handleLogin(e) {
     //    e.preventDefault();
 
     //    console.log("Logging in with:", login);
 
-     //   console.log("UserService: ", userService)
-     //   let token = await userService.loginApi(login.username, login.password);
+    //   console.log("UserService: ", userService)
+    //   let token = await userService.loginApi(login.username, login.password);
 
-      //  console.log(`Token received: ${token}`);
+    //  console.log(`Token received: ${token}`);
 
-        // store token in localStorage
+    // store token in localStorage
     //    localStorage.setItem("token", token);
 
-        // redirect to home page
+    // redirect to home page
     //    window.location.href = "/";
 
-   //     if (users[username] && users[username].password === password) {
-     //       setMessage(`✅ Welcome back, ${username}!`);
-      //  } else {
-     //       setMessage("❌ Invalid username or password.");
-     //   }
+    //     if (users[username] && users[username].password === password) {
+    //       setMessage(`✅ Welcome back, ${username}!`);
+    //  } else {
+    //       setMessage("❌ Invalid username or password.");
+    //   }
 
 
-   // }
+    // }
 
 
 
 
-  //  const handleSignUp = () => {
- ///       if (!username || !email || !password || !confirmPassword) {
- //           setMessage("❌ Please fill all fields.");
- //           return;
- //       }
-  //      if (password !== confirmPassword) {
- //           setMessage("❌ Passwords do not match.");
-  //          return;
- //       }
+    //  const handleSignUp = () => {
+    ///       if (!username || !email || !password || !confirmPassword) {
+    //           setMessage("❌ Please fill all fields.");
+    //           return;
+    //       }
+    //      if (password !== confirmPassword) {
+    //           setMessage("❌ Passwords do not match.");
+    //          return;
+    //       }
 
-   //     const users = JSON.parse(localStorage.getItem("users") || "{}");
-   //     if (users[username]) {
-  //          setMessage("❌ Username already exists.");
-  //          return;
-  ////      }
+    //     const users = JSON.parse(localStorage.getItem("users") || "{}");
+    //     if (users[username]) {
+    //          setMessage("❌ Username already exists.");
+    //          return;
+    ////      }
 
-   //     users[username] = { email, password };
-   //     localStorage.setItem("users", JSON.stringify(users));
-   //     setMessage(`✅ Account created for ${username}! You can now log in.`);
+    //     users[username] = { email, password };
+    //     localStorage.setItem("users", JSON.stringify(users));
+    //     setMessage(`✅ Account created for ${username}! You can now log in.`);
 
-   //     setEmail("");
-  //      setPassword("");
-   //     setConfirmPassword("");
-  //  };
+    //     setEmail("");
+    //      setPassword("");
+    //     setConfirmPassword("");
+    //  };
     async function handleLogin(e) {
         e.preventDefault();
 
@@ -118,15 +118,26 @@ export default function LoginForm() {
 
     }
 
-    const handleSignup = e => {
+    async function handleSignup(e) {
         e.preventDefault();
-        console.log("Signing up with:", signup);
 
-        // Create a new user with POST /users API
+        console.log("Sign up with:", signup);
 
-        // On success, Change tab to login
+        console.log("UserService: ", userService)
+        let token = await userService.signupApi(signup.username, signup.password, signup.name, signup.email);
 
-    };
+        console.log(`Token received: ${token}`);
+
+        // store token in localStorage
+        localStorage.setItem("token", token);
+
+        // redirect to home page
+        window.location.href = "/";
+
+
+    }
+
+
     return (
         <div className="login-container">
             {/* ✅ Particles (persist without reset) */}

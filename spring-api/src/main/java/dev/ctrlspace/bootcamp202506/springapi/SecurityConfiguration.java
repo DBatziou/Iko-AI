@@ -11,6 +11,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import dev.ctrlspace.bootcamp202506.springapi.services.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -41,6 +42,7 @@ public class SecurityConfiguration {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll() // allow signup
 
                         .anyRequest().authenticated()
                 )
