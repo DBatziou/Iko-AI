@@ -9,23 +9,20 @@ import dev.ctrlspace.bootcamp202506.springapi.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @RestController
-@RequestMapping("/chats") // Add this mapping
+@RequestMapping("/chats")
 @Scope(
-        value         = WebApplicationContext.SCOPE_REQUEST,
-        proxyMode     = ScopedProxyMode.TARGET_CLASS
+        value = WebApplicationContext.SCOPE_REQUEST,
+        proxyMode = ScopedProxyMode.TARGET_CLASS
 )
 public class ChatController {
 
@@ -42,24 +39,56 @@ public class ChatController {
     }
 
     @GetMapping
-    public List<Chat> getAllChats(ChatCriteria criteria, HttpServletRequest request) throws BootcampException {
-        // Debug: Log the authorization header
-        String authHeader = request.getHeader("Authorization");
-        logger.debug("Authorization header: " + (authHeader != null ? "Present" : "Missing"));
-        logger.debug("Request from: " + request.getRemoteAddr());
+    public List<Chat> getAllChats(@RequestParam(required = false) Long userId,
+                                  @RequestParam(required = false) String username,
+                                  Authentication authentication) throws BootcampException {
+
+        User loggedInUser = userService.getLoggedInUser(authentication);
+        logger.debug("Logged in user: " + loggedInUser.getUsername() + " (ID: " + loggedInUser.getId() + ")");
+
+        // Create criteria - only allow users to see their own chats unless they're admin
+        ChatCriteria criteria = new ChatCriteria();
+
+        if ("ROLE_ADMIN".equals(loggedInUser.getRole()) && userId != null) {
+            // Admin can specify userId to see other users' chats
+            criteria.setUserId(userId);
+        } else {
+            // Regular users can only see their own chats
+            criteria.setUserId(loggedInUser.getId());
+        }
+
+        if (username != null && "ROLE_ADMIN".equals(loggedInUser.getRole())) {
+            criteria.setUsername(username);
+        }
 
         return chatService.getAll(criteria);
     }
 
-    // Add this POST endpoint for creating new chats
     @PostMapping
-    public Chat createChat(@RequestBody Chat chat) {
+    public Chat createChat(@RequestBody Chat chat, Authentication authentication) throws BootcampException {
+        User loggedInUser = userService.getLoggedInUser(authentication);
+
+        // Ensure the chat is created for the logged-in user
+        chat.setUserId(loggedInUser.getId());
+        chat.setCreatedAt(Instant.now());
+
         return chatService.createChat(chat);
     }
 
-    // Add this PUT endpoint for updating chat titles
     @PutMapping("/{id}")
-    public Chat updateChat(@PathVariable Long id, @RequestBody Chat chatUpdate) {
+    public Chat updateChat(@PathVariable Long id, @RequestBody Chat chatUpdate, Authentication authentication) throws BootcampException {
+        User loggedInUser = userService.getLoggedInUser(authentication);
+
+        // Verify the chat belongs to the logged-in user (or user is admin)
+        Chat existingChat = chatService.getChatById(id);
+        if (existingChat == null) {
+            throw new BootcampException(org.springframework.http.HttpStatus.NOT_FOUND, "Chat not found");
+        }
+
+        if (!existingChat.getUserId().equals(loggedInUser.getId()) && !"ROLE_ADMIN".equals(loggedInUser.getRole())) {
+            throw new BootcampException(org.springframework.http.HttpStatus.FORBIDDEN, "You can only update your own chats");
+        }
+
         return chatService.updateChat(id, chatUpdate);
     }
 }

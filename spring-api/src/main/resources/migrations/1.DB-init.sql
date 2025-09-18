@@ -93,3 +93,41 @@ SELECT column_name, data_type, is_nullable, column_default
 FROM information_schema.columns
 WHERE table_name = 'public.messages'
 ORDER BY ordinal_position;
+
+
+-- Update existing users to have proper ROLE_ prefix
+UPDATE public.users
+SET role = CASE
+               WHEN role = 'SIMPLE_USER' THEN 'ROLE_USER'
+               WHEN role = 'ADMINISTRATOR_USER' THEN 'ROLE_ADMIN'
+               WHEN role NOT LIKE 'ROLE_%' THEN CONCAT('ROLE_', UPPER(role))
+               ELSE role
+    END
+WHERE role IS NOT NULL;
+
+-- Add some sample chats and messages for testing
+-- (Only if you want test data)
+INSERT INTO public.chats (user_id, title, created_at)
+SELECT u.id, 'Welcome Chat', NOW()
+FROM public.users u
+WHERE u.username = 'john_doe'
+  AND NOT EXISTS (SELECT 1 FROM public.chats c WHERE c.user_id = u.id AND c.title = 'Welcome Chat');
+
+-- Insert a welcome message
+INSERT INTO public.messages (chat_id, content, created_at, from_self, created_by_user_id)
+SELECT c.id, 'Hello! Welcome to IKO AI. How can I help you today?', NOW(), false, NULL
+FROM public.chats c
+         JOIN public.users u ON c.user_id = u.id
+WHERE u.username = 'john_doe' AND c.title = 'Welcome Chat'
+  AND NOT EXISTS (SELECT 1 FROM public.messages m WHERE m.chat_id = c.id);
+
+-- Verify the database structure
+SELECT
+    table_name,
+    column_name,
+    data_type,
+    is_nullable,
+    column_default
+FROM information_schema.columns
+WHERE table_name IN ('users', 'chats', 'messages')
+ORDER BY table_name, ordinal_position;

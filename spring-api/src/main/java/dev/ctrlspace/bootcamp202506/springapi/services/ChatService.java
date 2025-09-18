@@ -9,10 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatService {
@@ -39,21 +37,24 @@ public class ChatService {
                 criteria.getTo());
     }
 
-    // Add this method to create new chats
     public Chat createChat(Chat chat) {
         chat.setCreatedAt(Instant.now());
         return chatRepository.save(chat);
     }
 
-    // Add this method to update chat titles
-    public Chat updateChat(Long id, Chat chatUpdate) {
+    public Chat updateChat(Long id, Chat chatUpdate) throws BootcampException {
         Chat existingChat = chatRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Chat not found with id: " + id));
+                .orElseThrow(() -> new BootcampException(HttpStatus.NOT_FOUND, "Chat not found with id: " + id));
 
         if (chatUpdate.getTitle() != null) {
             existingChat.setTitle(chatUpdate.getTitle());
         }
 
         return chatRepository.save(existingChat);
+    }
+
+    public Chat getChatById(Long id) {
+        Optional<Chat> chat = chatRepository.findById(id);
+        return chat.orElse(null);
     }
 }

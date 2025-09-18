@@ -19,24 +19,20 @@ public class MessageService {
     }
 
     public Message createMessage(Message message) {
-        // Save user message
-        message.setCreatedAt(Instant.now());
-        message.setFromSelf(true); // mark as user message
-        Message savedUserMessage = messageRepository.save(message);
+        // Save user message to DB here if you want (optional)
 
-        // Generate AI response
-        String llmResponse = completionsApiService.getCompletion(
-                "llama-3.1-8b-instant",
-                message.getContent()
-        );
+        // Call AI
+        String aiResponse = completionsApiService.getCompletion(message.getContent());
 
-        Message aiMessage = new Message();
-        aiMessage.setChatId(message.getChatId());
-        aiMessage.setContent(llmResponse);
-        aiMessage.setCreatedAt(Instant.now());
-        aiMessage.setFromSelf(false); // mark as AI message
+        // Create AI message
+        Message llmMessage = new Message();
+        llmMessage.setContent(aiResponse);
+        llmMessage.setChatId(message.getChatId());
+        llmMessage.setCreatedAt(java.time.Instant.now());
+        llmMessage.setCreatedByUserId(null);
 
-        return messageRepository.save(aiMessage);
+        // Save AI message to DB here if you want (optional)
+        return llmMessage;
     }
 
     public List<Message> getMessagesByChatId(Long chatId) {

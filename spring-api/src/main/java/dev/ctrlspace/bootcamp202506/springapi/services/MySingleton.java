@@ -1,18 +1,16 @@
 package dev.ctrlspace.bootcamp202506.springapi.services;
 
 public class MySingleton {
+    private static MySingleton instance;
 
-    private static MySingleton self = null;
-
-    private MySingleton() {}
-
-    static public MySingleton getInstance() {
-        if (self == null) {
-            self = new MySingleton();
-        }
-        return self;
+    private MySingleton() {
+        // Private constructor to prevent instantiation
     }
 
-
-
+    public static MySingleton getInstance() {
+        if (instance == null) {
+            instance = new MySingleton();
+        }
+        return instance;
+    }
 }

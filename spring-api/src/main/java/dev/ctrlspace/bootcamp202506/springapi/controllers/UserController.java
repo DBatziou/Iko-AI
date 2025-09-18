@@ -20,31 +20,23 @@ public class UserController {
     Logger logger = org.slf4j.LoggerFactory.getLogger(UserController.class);
 
     private UserService userService;
-
     private JwtEncoder jwtEncoder;
 
     @Autowired
-    public UserController(UserService userService,
-                          JwtEncoder jwtEncoder
-    ) {
+    public UserController(UserService userService, JwtEncoder jwtEncoder) {
         this.userService = userService;
         this.jwtEncoder = jwtEncoder;
-//        this.chatController = chatController;
 
-        logger.debug("UserController initialized with ChatService: " + userService);
+        logger.debug("UserController initialized with UserService: " + userService);
         MySingleton mySingleton = MySingleton.getInstance();
         MySingleton mySingleton2 = MySingleton.getInstance();
-
     }
 
-
     public UserController() {
-
     }
 
     @GetMapping("/users")
     public List<User> getAllUsers(Authentication authentication) throws BootcampException {
-
         User loggedInUser = userService.getLoggedInUser(authentication);
 
         if (!loggedInUser.getRole().equals("ROLE_ADMIN")) {
@@ -68,21 +60,27 @@ public class UserController {
         return userService.getUserByUsername(username);
     }
 
-
     @GetMapping("/login")
-    public JwtDTO login(Authentication authentication) {
-
+    public JwtDTO login(Authentication authentication) throws BootcampException {
         JwtDTO jwtDTO = userService.generateJwtForAuthUser(authentication);
-
         return jwtDTO;
     }
 
     @PostMapping("/users")
-    public User createUser(@RequestBody User user) throws Exception {
-
+    public User createUser(@RequestBody User user) throws BootcampException {
         return userService.createUser(user);
     }
 
+    // Add this endpoint for checking username availability
+    @GetMapping("/check-username/{username}")
+    public boolean checkUsernameExists(@PathVariable String username) {
+        User existingUser = userService.getUserByUsername(username);
+        return existingUser != null;
+    }
 
-
+    // Add this endpoint to get current user info from token
+    @GetMapping("/me")
+    public User getCurrentUser(Authentication authentication) throws BootcampException {
+        return userService.getLoggedInUser(authentication);
+    }
 }

@@ -1,19 +1,15 @@
 import {useState, useMemo, useEffect} from "react";
 import userService from "@/services/userService";
-import axios from "axios";
-
 
 export default function LoginForm() {
     const [mode, setMode] = useState("login");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const [login, setLogin] = useState({username: "", password: ""});
     const [signup, setSignup] = useState({
         name: "", email: "", username: "", password: "", confirm: ""
     });
+
     // ✅ Generate particles only ONCE
     const particles = useMemo(
         () =>
@@ -28,115 +24,47 @@ export default function LoginForm() {
         []
     );
 
-
-
     useEffect(() => {
-
         // Check if user is already logged in
         const token = localStorage.getItem("token");
         if (token) {
             // Redirect to home page if token exists
             window.location.href = "/";
         }
-
     }, []);
-
-//    const handleSubmit = () => {
-//        if (mode === "login") {
-//            handleLogin();
-    //      } else {
-    //          handleSignUp();
-//        }
-    //   };
-
-    //  async function handleLogin(e) {
-    //    e.preventDefault();
-
-    //    console.log("Logging in with:", login);
-
-    //   console.log("UserService: ", userService)
-    //   let token = await userService.loginApi(login.username, login.password);
-
-    //  console.log(`Token received: ${token}`);
-
-    // store token in localStorage
-    //    localStorage.setItem("token", token);
-
-    // redirect to home page
-    //    window.location.href = "/";
-
-    //     if (users[username] && users[username].password === password) {
-    //       setMessage(`✅ Welcome back, ${username}!`);
-    //  } else {
-    //       setMessage("❌ Invalid username or password.");
-    //   }
-
-
-    // }
-
-
-
-
-    //  const handleSignUp = () => {
-    ///       if (!username || !email || !password || !confirmPassword) {
-    //           setMessage("❌ Please fill all fields.");
-    //           return;
-    //       }
-    //      if (password !== confirmPassword) {
-    //           setMessage("❌ Passwords do not match.");
-    //          return;
-    //       }
-
-    //     const users = JSON.parse(localStorage.getItem("users") || "{}");
-    //     if (users[username]) {
-    //          setMessage("❌ Username already exists.");
-    //          return;
-    ////      }
-
-    //     users[username] = { email, password };
-    //     localStorage.setItem("users", JSON.stringify(users));
-    //     setMessage(`✅ Account created for ${username}! You can now log in.`);
-
-    //     setEmail("");
-    //      setPassword("");
-    //     setConfirmPassword("");
-    //  };
-
-    async function checkUsernameExists(username) {
-        try {
-            const response = await axios.get(`http://localhost:8080/check-username/${username}`);
-// No params needed since username is part of the path
-            return response.data; // true or false
-        } catch (error) {
-            console.error("Error checking username:", error);
-            // Handle error (maybe assume username doesn't exist or show error)
-            return false;
-        }
-    }
-
 
     async function handleLogin(e) {
         e.preventDefault();
+        if (!login.username.trim() || !login.password.trim()) {
+            setMessage("❌ Please fill all fields.");
+            return;
+        }
 
-        console.log("Logging in with:", login);
+        setIsLoading(true);
+        setMessage("");
 
-        console.log("UserService: ", userService)
-        let token = await userService.loginApi(login.username, login.password);
+        try {
+            console.log("Logging in with:", login.username);
+            let token = await userService.loginApi(login.username, login.password);
+            console.log(`Token received: ${token}`);
 
-        console.log(`Token received: ${token}`);
+            // Store token in localStorage
+            localStorage.setItem("token", token);
 
-        // store token in localStorage
-        localStorage.setItem("token", token);
-
-        // redirect to home page
-        window.location.href = "/";
-
-
+            // Redirect to home page
+            window.location.href = "/";
+        } catch (error) {
+            console.error("Login error:", error);
+            setMessage(`❌ ${error.message}`);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     async function handleSignup(e) {
         e.preventDefault();
-        if (!signup.username || !signup.email || !signup.name || !signup.password || !signup.confirm) {
+        if (!signup.username?.trim() || !signup.email?.trim() || !signup.name?.trim() ||
+            !signup.password?.trim() || !signup.confirm?.trim()) {
             setMessage("❌ Please fill all fields.");
             return;
         }
@@ -146,18 +74,30 @@ export default function LoginForm() {
             return;
         }
 
+        if (signup.password.length < 4) {
+            setMessage("❌ Password must be at least 4 characters long.");
+            return;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(signup.email)) {
+            setMessage("❌ Please enter a valid email address.");
+            return;
+        }
+
+        setIsLoading(true);
+        setMessage("");
+
         try {
-            // Check if username exists using the existing checkUsernameExists function
-            const usernameExists = await checkUsernameExists(signup.username);
-            if (usernameExists) {
-                setMessage("❌ Username already taken.");
-                return;
-            }
-
-            console.log("Sign up with:", signup);
-
-            let token = await userService.signupApi(signup.username, signup.password, signup.name, signup.email, 'SIMPLE_USER');
-
+            console.log("Signing up with:", signup.username);
+            let token = await userService.signupApi(
+                signup.username,
+                signup.password,
+                signup.name,
+                signup.email,
+                'SIMPLE_USER'
+            );
             console.log(`Token received: ${token}`);
 
             // Store token in localStorage
@@ -167,10 +107,19 @@ export default function LoginForm() {
             window.location.href = "/";
         } catch (error) {
             console.error("Signup error:", error);
-            setMessage("⚠️ Error during signup. Please try again.");
+            setMessage(`❌ ${error.message}`);
+        } finally {
+            setIsLoading(false);
         }
     }
 
+    const handleModeChange = (newMode) => {
+        setMode(newMode);
+        setMessage(""); // Clear any existing messages
+        // Reset forms
+        setLogin({username: "", password: ""});
+        setSignup({name: "", email: "", username: "", password: "", confirm: ""});
+    };
 
     return (
         <div className="login-container">
@@ -202,84 +151,103 @@ export default function LoginForm() {
                 <div className="tabButtons">
                     <button
                         className={`tabButton ${mode === "login" ? "active" : ""}`}
-                        onClick={() => setMode("login")}
-
+                        onClick={() => handleModeChange("login")}
+                        disabled={isLoading}
                     >
                         Login
                     </button>
                     <button
                         className={`tabButton ${mode === "signup" ? "active" : ""}`}
-                        onClick={() => setMode("signup")}
+                        onClick={() => handleModeChange("signup")}
+                        disabled={isLoading}
                     >
                         Sign up
                     </button>
                 </div>
 
-                {mode ==="login" &&(
-                    <form >
+                {mode === "login" && (
+                    <form onSubmit={handleLogin} className="auth-form">
                         <input
+                            className="neon-input"
                             placeholder="Username"
                             required
                             value={login.username}
                             onChange={e => setLogin({...login, username: e.target.value})}
+                            disabled={isLoading}
                         />
                         <input
+                            className="neon-input"
                             type="password"
                             placeholder="Password"
                             required
                             value={login.password}
                             onChange={e => setLogin({...login, password: e.target.value})}
+                            disabled={isLoading}
                         />
-                        <button className="loginButton" onClick={handleLogin}>
-                            {mode === "login" ? "Log in" : "Sign up"}
+                        <button
+                            className="loginButton"
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "LOGGING IN..." : "LOG IN"}
                         </button>
                     </form>
                 )}
 
-                {mode ==="signup" && (
-                    <form>
+                {mode === "signup" && (
+                    <form onSubmit={handleSignup} className="auth-form">
                         <input
-                            placeholder="Name"
+                            className="neon-input"
+                            placeholder="Full Name"
                             required
                             value={signup.name}
                             onChange={e => setSignup({...signup, name: e.target.value})}
+                            disabled={isLoading}
                         />
                         <input
+                            className="neon-input"
                             type="email"
                             placeholder="Email"
                             required
                             value={signup.email}
                             onChange={e => setSignup({...signup, email: e.target.value})}
+                            disabled={isLoading}
                         />
                         <input
+                            className="neon-input"
                             placeholder="Username"
                             required
                             value={signup.username}
                             onChange={e => setSignup({...signup, username: e.target.value})}
+                            disabled={isLoading}
                         />
                         <input
+                            className="neon-input"
                             type="password"
                             placeholder="Password"
                             required
                             value={signup.password}
                             onChange={e => setSignup({...signup, password: e.target.value})}
+                            disabled={isLoading}
                         />
                         <input
+                            className="neon-input"
                             type="password"
-                            placeholder="Confirm password"
+                            placeholder="Confirm Password"
                             required
                             value={signup.confirm}
                             onChange={e => setSignup({...signup, confirm: e.target.value})}
+                            disabled={isLoading}
                         />
-                        <button className="loginButton" onClick={handleSignup}>
-                            {mode === "login" ? "Log in" : "Sign up"}
+                        <button
+                            className="loginButton"
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "SIGNING UP..." : "SIGN UP"}
                         </button>
                     </form>
                 )}
-
-
-
-
 
                 {message && <p className="message">{message}</p>}
             </div>

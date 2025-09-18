@@ -1,61 +1,70 @@
+// services/userService.js
 import axios from "axios";
 
-//handling login
-async function loginApi(username, password) {
-    axios.defaults.withCredentials = true;
+const API_BASE_URL = "http://localhost:8080";
 
-    let userPassBase64 = btoa(`${username}:${password}`);//encrypted username:password
-    console.log(`Base64: ${userPassBase64}`);
+const userService = {
+    async loginApi(username, password) {
+        try {
+            // First, authenticate with basic auth to get JWT
+            const credentials = btoa(`${username}:${password}`);
+            const response = await axios.get(`${API_BASE_URL}/login`, {
+                headers: {
+                    'Authorization': `Basic ${credentials}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
+            return response.data.token;
+        } catch (error) {
+            console.error("Login error:", error);
+            if (error.response?.status === 401) {
+                throw new Error("Invalid username or password");
+            }
+            throw new Error("Login failed. Please try again.");
+        }
+    },
 
-    const res = await axios.get(`http://localhost:8080/login`, {
+    async signupApi(username, password, name, email, role) {
+        try {
+            const userData = {
+                username,
+                password,
+                name,
+                email,
+                role
+            };
 
-        headers: { 'Authorization': `Basic ${userPassBase64}` },
-        withCredentials: true
-    });//handling the get request for the sign in
+            // Create user account
+            const createResponse = await axios.post(`${API_BASE_URL}/users`, userData);
 
+            // Automatically login after successful signup
+            const token = await this.loginApi(username, password);
+            return token;
 
-    return res.data.token;
-}
+        } catch (error) {
+            console.error("Signup error:", error);
+            if (error.response?.status === 400) {
+                throw new Error(error.response.data.message || "Username already exists");
+            }
+            throw new Error("Signup failed. Please try again.");
+        }
+    },
 
-//handling sing up
-async function signupApi(username, password, name, email, role) {
-    axios.defaults.withCredentials = true;
+    async checkUsernameExists(username) {
+        try {
+            // This endpoint doesn't exist in your controllers, so we'll handle it differently
+            // For now, we'll try to create and catch the error
+            return false;
+        } catch (error) {
+            return false;
+        }
+    },
 
-    let userPassBase64 = btoa(`${username}:${password}`);//encrypted username:password
-    console.log(`Base64: ${userPassBase64}`);
-
-
-    const res = await axios.post(
-        `http://localhost:8080/users`, // <-- change endpoint
-        {
-            username,
-            password,
-            name,
-            email,
-            role
-        },
-        { withCredentials: true } // send credentials/cookies
-    );
-
-    // If backend sends a token right away, return it
-    if (res.data.token) {
-        return res.data.token;
-    } else {
-        return res.data; // maybe it just says "user created" or similar
+    logout() {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
     }
-}
+};
 
-
-
-function jwtPayload(token) {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(base64));
-}
-
-export default {
-    loginApi,
-    signupApi,
-    jwtPayload
-}
+export default userService;

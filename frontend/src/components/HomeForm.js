@@ -18,23 +18,69 @@ export default function HomeForm() {
     const [draft, setDraft] = useState("");
     const [editingChatId, setEditingChatId] = useState(null);
     const [editingTitle, setEditingTitle] = useState("");
+    const [currentUser, setCurrentUser] = useState(null);
+
+    // Helper function to decode JWT and extract user info
+    const getCurrentUserFromToken = () => {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            const payload = JSON.parse(jsonPayload);
+            return {
+                id: payload.id,
+                username: payload.sub,
+                email: payload.email,
+                name: payload.name,
+                role: payload.role
+            };
+        } catch (error) {
+            console.error("Error decoding token:", error);
+            return null;
+        }
+    };
+
+    // Check authentication and set current user
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.log("No authentication token found, redirecting to login");
+            router.push("/login");
+            return;
+        }
+
+        const user = getCurrentUserFromToken();
+        if (!user) {
+            console.log("Invalid token, redirecting to login");
+            localStorage.removeItem("token");
+            router.push("/login");
+            return;
+        }
+
+        setCurrentUser(user);
+    }, [router]);
 
     // Fetch chat threads
     useEffect(() => {
         const fetchThreads = async () => {
+            if (!currentUser) return;
+
             try {
                 const token = localStorage.getItem("token");
 
-                // Debug: Check if token exists
-                console.log("Token from localStorage:", token ? "Token exists" : "No token found");
-
                 if (!token) {
-                    console.log("No authentication token found, redirecting to login");
-                    router.push("/login"); // Adjust this path to your login route
+                    router.push("/login");
                     return;
                 }
 
-                const res = await axios.get(`${API_URL}/chats`, {
+                // Fetch chats for the current user
+                const res = await axios.get(`${API_URL}/chats?userId=${currentUser.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setThreads(res.data);
@@ -42,18 +88,20 @@ export default function HomeForm() {
             } catch (err) {
                 console.error("Error loading chats:", err);
 
-                // Handle 401 specifically
                 if (err.response?.status === 401) {
                     console.log("Authentication failed, redirecting to login");
-                    localStorage.removeItem("token"); // Clear invalid token
-                    router.push("/login"); // Adjust this path to your login route
+                    localStorage.removeItem("token");
+                    router.push("/login");
                 } else {
                     console.error("Other error:", err.response?.data || err.message);
                 }
             }
         };
-        fetchThreads();
-    }, [router]);
+
+        if (currentUser) {
+            fetchThreads();
+        }
+    }, [currentUser, router]);
 
     // Fetch messages for the active thread
     useEffect(() => {
@@ -83,8 +131,7 @@ export default function HomeForm() {
                     router.push("/login");
                 } else if (err.response?.status === 500) {
                     console.error("Server error - check backend logs");
-                    // You might want to show an error message to the user
-                    setMessages([]); // Clear messages on error
+                    setMessages([]);
                 }
             }
         };
@@ -112,22 +159,19 @@ export default function HomeForm() {
         try {
             const token = localStorage.getItem("token");
 
-            if (!token) {
+            if (!token || !currentUser) {
                 router.push("/login");
                 return;
             }
 
-            // You'll need to get the current user ID somehow - this is just a placeholder
-            const userId = 1; // Replace with actual user ID from your auth system
-
             const res = await axios.post(`${API_URL}/chats`, {
                 title: "New Chat",
-                userId: userId
+                userId: currentUser.id
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const newChat = res.data;
-            setThreads(prev => [newChat, ...prev]); // Add to beginning of array
+            setThreads(prev => [newChat, ...prev]);
             setActiveThreadId(newChat.id);
             setMessages([]);
         } catch (err) {
@@ -142,7 +186,7 @@ export default function HomeForm() {
 
     const handleSend = async (e) => {
         e.preventDefault();
-        if (!draft.trim() || !activeThreadId || isLoading) return;
+        if (!draft.trim() || !activeThreadId || isLoading || !currentUser) return;
 
         const token = localStorage.getItem("token");
 
@@ -151,7 +195,11 @@ export default function HomeForm() {
             return;
         }
 
-        const userMessage = { content: draft, chatId: activeThreadId };
+        const userMessage = {
+            content: draft,
+            chatId: activeThreadId,
+            createdByUserId: currentUser.id
+        };
 
         // Clear input and add user message immediately
         setDraft("");
@@ -172,6 +220,69 @@ export default function HomeForm() {
             // Remove the user message if there was an error
             setMessages(prev => prev.slice(0, -1));
 
+            if (err.response?.status === 401) {
+                localStorage.removeItem("token");
+                router.push("/login");
+            } else {
+                // Show error message to user
+                setMessages(prev => [...prev, {
+                    content: "Sorry, I couldn't process your message. Please try again.",
+                    fromSelf: false,
+                    chatId: activeThreadId
+                }]);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // New function to handle hint button clicks
+    const handleHintClick = async (hintText) => {
+        if (!currentUser) return;
+
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                router.push("/login");
+                return;
+            }
+
+            // Create a new chat first
+            const chatRes = await axios.post(`${API_URL}/chats`, {
+                title: hintText.length > 50 ? hintText.substring(0, 50) + "..." : hintText,
+                userId: currentUser.id
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            const newChat = chatRes.data;
+
+            // Update threads and set active
+            setThreads(prev => [newChat, ...prev]);
+            setActiveThreadId(newChat.id);
+            setMessages([]);
+
+            // Send the hint text as the first message
+            const userMessage = {
+                content: hintText,
+                chatId: newChat.id,
+                createdByUserId: currentUser.id
+            };
+
+            // Add user message immediately
+            setMessages(prev => [...prev, { ...userMessage, fromSelf: true }]);
+            setIsLoading(true);
+
+            // Send message to backend
+            const resp = await axios.post(`${API_URL}/messages`, userMessage, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // Add AI response
+            setMessages(prev => [...prev, resp.data]);
+
+        } catch (err) {
+            console.error("Error creating chat with hint:", err);
             if (err.response?.status === 401) {
                 localStorage.removeItem("token");
                 router.push("/login");
@@ -210,7 +321,17 @@ export default function HomeForm() {
         setEditingTitle(chat.title);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        setCurrentUser(null);
+        router.push("/login");
+    };
+
     const activeThread = threads.find(t => t.id === activeThreadId);
+
+    if (!currentUser) {
+        return <div>Loading...</div>; // or redirect to login
+    }
 
     return (
         <div className="chatgpt-layout">
@@ -278,7 +399,7 @@ export default function HomeForm() {
                                 <img src="/ai-technology-robot-cute-design.png" alt="Profile" />
                                 <span>Profile</span>
                             </button>
-                            <button className="logout-btn" onClick={() => console.log("Log out clicked!")}>
+                            <button className="logout-btn" onClick={handleLogout}>
                                 <img src="/5565392-200.png" alt="Log out" />
                                 <span>Log out</span>
                             </button>
@@ -323,9 +444,27 @@ export default function HomeForm() {
                         <h1 className="neon-title">WELCOME TO IKO</h1>
                         <p className="neon-sub">Your AI informant</p>
                         <div className="prompt-hints">
-                            <div className="hint-card">⚡ "Tell me a cyberpunk story"</div>
-                            <div className="hint-card">⚡ "Hack into the neon grid"</div>
-                            <div className="hint-card">⚡ "Explain quantum AI"</div>
+                            <div
+                                className="hint-card"
+                                onClick={() => handleHintClick("Tell me a cyberpunk story")}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                ⚡ "Tell me a cyberpunk story"
+                            </div>
+                            <div
+                                className="hint-card"
+                                onClick={() => handleHintClick("Hack into the neon grid")}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                ⚡ "Hack into the neon grid"
+                            </div>
+                            <div
+                                className="hint-card"
+                                onClick={() => handleHintClick("Explain quantum AI")}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                ⚡ "Explain quantum AI"
+                            </div>
                         </div>
                     </div>
                 )}
