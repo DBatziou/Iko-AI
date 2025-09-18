@@ -1,5 +1,6 @@
 package dev.ctrlspace.bootcamp202506.springapi.models;
 
+
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

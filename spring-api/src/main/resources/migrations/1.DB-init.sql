@@ -13,6 +13,23 @@ CREATE TABLE IF NOT EXISTS public.chats
     title   text
 );
 
+
+-- Create messages table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.messages (
+                                        id BIGSERIAL PRIMARY KEY,
+                                        chat_id BIGINT NOT NULL,
+                                        created_by_user_id BIGINT,
+                                        content TEXT NOT NULL,
+                                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                        from_self BOOLEAN DEFAULT FALSE,
+                                        FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
+);
+
+-- Check if tables exist and show their structure
+SELECT table_name, column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name IN ('chats', 'messages')
+ORDER BY table_name, ordinal_position;
 -- .....1 month later
 
 ALTER TABLE public.users
@@ -51,3 +68,28 @@ VALUES ((SELECT id FROM public.users WHERE email = 'john_doe@example.com'), 'Dai
 ALTER TABLE public.chats
     ADD COLUMN IF NOT EXISTS created_at timestamp;
 
+-- Run these SQL commands to add the missing columns to your messages table
+
+-- Add the missing columns to the messages table
+ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS created_by_user_id BIGINT;
+ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS from_self BOOLEAN DEFAULT FALSE;
+
+-- Verify the table structure
+SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_name = 'public.messages'
+ORDER BY ordinal_position;
+
+-- Optional: Update existing records to have from_self = FALSE if they're null
+UPDATE public.messages SET from_self = FALSE WHERE from_self IS NULL;
+
+ALTER TABLE public.messages ALTER COLUMN user_id DROP NOT NULL;
+
+-- Option 2: Or drop the user_id column entirely if you're not using it
+-- ALTER TABLE messages DROP COLUMN IF EXISTS user_id;
+
+-- Also verify your messages table structure
+SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_name = 'public.messages'
+ORDER BY ordinal_position;

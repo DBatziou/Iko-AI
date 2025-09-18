@@ -19,7 +19,7 @@ async function loginApi(username, password) {
 }
 
 //handling sing up
-async function signupApi(username, password, name, email) {
+async function signupApi(username, password, name, email, role) {
     axios.defaults.withCredentials = true;
 
     let userPassBase64 = btoa(`${username}:${password}`);//encrypted username:password
@@ -32,7 +32,8 @@ async function signupApi(username, password, name, email) {
             username,
             password,
             name,
-            email
+            email,
+            role
         },
         { withCredentials: true } // send credentials/cookies
     );

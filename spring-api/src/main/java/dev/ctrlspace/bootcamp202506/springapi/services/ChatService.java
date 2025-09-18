@@ -39,4 +39,21 @@ public class ChatService {
                 criteria.getTo());
     }
 
+    // Add this method to create new chats
+    public Chat createChat(Chat chat) {
+        chat.setCreatedAt(Instant.now());
+        return chatRepository.save(chat);
+    }
+
+    // Add this method to update chat titles
+    public Chat updateChat(Long id, Chat chatUpdate) {
+        Chat existingChat = chatRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Chat not found with id: " + id));
+
+        if (chatUpdate.getTitle() != null) {
+            existingChat.setTitle(chatUpdate.getTitle());
+        }
+
+        return chatRepository.save(existingChat);
+    }
 }

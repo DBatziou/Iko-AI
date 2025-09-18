@@ -1,5 +1,7 @@
 import {useState, useMemo, useEffect} from "react";
 import userService from "@/services/userService";
+import axios from "axios";
+
 
 export default function LoginForm() {
     const [mode, setMode] = useState("login");
@@ -99,6 +101,20 @@ export default function LoginForm() {
     //      setPassword("");
     //     setConfirmPassword("");
     //  };
+
+    async function checkUsernameExists(username) {
+        try {
+            const response = await axios.get(`http://localhost:8080/check-username/${username}`);
+// No params needed since username is part of the path
+            return response.data; // true or false
+        } catch (error) {
+            console.error("Error checking username:", error);
+            // Handle error (maybe assume username doesn't exist or show error)
+            return false;
+        }
+    }
+
+
     async function handleLogin(e) {
         e.preventDefault();
 
@@ -120,21 +136,39 @@ export default function LoginForm() {
 
     async function handleSignup(e) {
         e.preventDefault();
+        if (!signup.username || !signup.email || !signup.name || !signup.password || !signup.confirm) {
+            setMessage("❌ Please fill all fields.");
+            return;
+        }
 
-        console.log("Sign up with:", signup);
+        if (signup.password !== signup.confirm) {
+            setMessage("❌ Passwords do not match.");
+            return;
+        }
 
-        console.log("UserService: ", userService)
-        let token = await userService.signupApi(signup.username, signup.password, signup.name, signup.email);
+        try {
+            // Check if username exists using the existing checkUsernameExists function
+            const usernameExists = await checkUsernameExists(signup.username);
+            if (usernameExists) {
+                setMessage("❌ Username already taken.");
+                return;
+            }
 
-        console.log(`Token received: ${token}`);
+            console.log("Sign up with:", signup);
 
-        // store token in localStorage
-        localStorage.setItem("token", token);
+            let token = await userService.signupApi(signup.username, signup.password, signup.name, signup.email, 'SIMPLE_USER');
 
-        // redirect to home page
-        window.location.href = "/";
+            console.log(`Token received: ${token}`);
 
+            // Store token in localStorage
+            localStorage.setItem("token", token);
 
+            // Redirect to home page
+            window.location.href = "/";
+        } catch (error) {
+            console.error("Signup error:", error);
+            setMessage("⚠️ Error during signup. Please try again.");
+        }
     }
 
 
