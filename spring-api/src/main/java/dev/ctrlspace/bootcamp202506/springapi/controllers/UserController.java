@@ -8,11 +8,13 @@ import dev.ctrlspace.bootcamp202506.springapi.services.UserService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -71,7 +73,7 @@ public class UserController {
         return userService.createUser(user);
     }
 
-    // NEW: Add PUT endpoint for updating user profile
+    // Update user profile
     @PutMapping("/users/{id}")
     public User updateUser(@PathVariable Long id, @RequestBody User updatedUser, Authentication authentication) throws BootcampException {
         User loggedInUser = userService.getLoggedInUser(authentication);
@@ -87,14 +89,61 @@ public class UserController {
         return userService.updateUser(id, updatedUser);
     }
 
-    // Add this endpoint for checking username availability
+    // NEW: Change user password
+    @PutMapping("/users/{id}/password")
+    public ResponseEntity<String> changePassword(@PathVariable Long id, @RequestBody Map<String, String> passwordData, Authentication authentication) throws BootcampException {
+        User loggedInUser = userService.getLoggedInUser(authentication);
+
+        // Check if user is updating their own password or is admin
+        boolean isAdmin = "ROLE_ADMIN".equals(loggedInUser.getRole());
+        boolean isSelf = id.equals(loggedInUser.getId());
+
+        if (!(isAdmin || isSelf)) {
+            throw new BootcampException(HttpStatus.FORBIDDEN, "You are not allowed to change this user's password.");
+        }
+
+        String currentPassword = passwordData.get("currentPassword");
+        String newPassword = passwordData.get("newPassword");
+
+        if (currentPassword == null || newPassword == null) {
+            throw new BootcampException(HttpStatus.BAD_REQUEST, "Current password and new password are required.");
+        }
+
+        if (newPassword.length() < 6) {
+            throw new BootcampException(HttpStatus.BAD_REQUEST, "New password must be at least 6 characters long.");
+        }
+
+        userService.changePassword(id, currentPassword, newPassword);
+
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+    // NEW: Delete user account
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id, Authentication authentication) throws BootcampException {
+        User loggedInUser = userService.getLoggedInUser(authentication);
+
+        // Check if user is deleting their own account or is admin
+        boolean isAdmin = "ROLE_ADMIN".equals(loggedInUser.getRole());
+        boolean isSelf = id.equals(loggedInUser.getId());
+
+        if (!(isAdmin || isSelf)) {
+            throw new BootcampException(HttpStatus.FORBIDDEN, "You are not allowed to delete this user.");
+        }
+
+        userService.deleteUser(id);
+
+        return ResponseEntity.ok("User account deleted successfully");
+    }
+
+    // Check username availability
     @GetMapping("/check-username/{username}")
     public boolean checkUsernameExists(@PathVariable String username) {
         User existingUser = userService.getUserByUsername(username);
         return existingUser != null;
     }
 
-    // Add this endpoint to get current user info from token
+    // Get current user info from token
     @GetMapping("/me")
     public User getCurrentUser(Authentication authentication) throws BootcampException {
         return userService.getLoggedInUser(authentication);

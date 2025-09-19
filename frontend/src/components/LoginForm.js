@@ -1,6 +1,16 @@
 import {useState, useMemo, useEffect} from "react";
 import userService from "@/services/userService";
 
+// Create axios instance with custom error handling
+import axios from 'axios';
+
+const apiClient = axios.create({
+    baseURL: "http://localhost:8080",
+    validateStatus: function (status) {
+        return status < 500; // Only throw for 5xx server errors
+    }
+});
+
 export default function LoginForm() {
     const [mode, setMode] = useState("login");
     const [message, setMessage] = useState("");
@@ -10,7 +20,6 @@ export default function LoginForm() {
         name: "", email: "", username: "", password: "", confirm: ""
     });
 
-    // ✅ Generate particles only ONCE
     const particles = useMemo(
         () =>
             Array.from({ length: 20 }).map((_, i) => ({
@@ -25,10 +34,8 @@ export default function LoginForm() {
     );
 
     useEffect(() => {
-        // Check if user is already logged in
         const token = localStorage.getItem("token");
         if (token) {
-            // Redirect to home page if token exists
             window.location.href = "/";
         }
     }, []);
@@ -44,6 +51,7 @@ export default function LoginForm() {
         setMessage("");
 
         try {
+            // Use the original userService login method
             console.log("Logging in with:", login.username);
             let token = await userService.loginApi(login.username, login.password);
             console.log(`Token received: ${token}`);
@@ -90,7 +98,6 @@ export default function LoginForm() {
             return;
         }
 
-        // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(signup.email)) {
             setMessage("❌ Please enter a valid email address.");
@@ -151,15 +158,13 @@ export default function LoginForm() {
 
     const handleModeChange = (newMode) => {
         setMode(newMode);
-        setMessage(""); // Clear any existing messages
-        // Reset forms
+        setMessage("");
         setLogin({username: "", password: ""});
         setSignup({name: "", email: "", username: "", password: "", confirm: ""});
     };
 
     return (
         <div className="login-container">
-            {/* ✅ Particles (persist without reset) */}
             <div className="particles-container">
                 {particles.map((p) => (
                     <div
@@ -176,7 +181,6 @@ export default function LoginForm() {
                 ))}
             </div>
 
-            {/* ✅ Actual Login Form */}
             <div className="wrapper">
                 <div className="title">
                     <h1>

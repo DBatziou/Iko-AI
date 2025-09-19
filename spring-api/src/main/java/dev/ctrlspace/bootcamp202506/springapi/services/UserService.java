@@ -3,6 +3,8 @@ package dev.ctrlspace.bootcamp202506.springapi.services;
 import dev.ctrlspace.bootcamp202506.springapi.exceptions.BootcampException;
 import dev.ctrlspace.bootcamp202506.springapi.models.User;
 import dev.ctrlspace.bootcamp202506.springapi.models.dtos.JwtDTO;
+import dev.ctrlspace.bootcamp202506.springapi.repositories.ChatRepository;
+import dev.ctrlspace.bootcamp202506.springapi.repositories.MessageRepository;
 import dev.ctrlspace.bootcamp202506.springapi.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +14,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -30,11 +34,19 @@ public class UserService implements UserDetailsService {
 
     private UserRepository userRepository;
     private JwtEncoder jwtEncoder;
+    private PasswordEncoder passwordEncoder;
+    private ChatRepository chatRepository;
+    private MessageRepository messageRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, JwtEncoder jwtEncoder) {
+    public UserService(UserRepository userRepository, JwtEncoder jwtEncoder,
+                       PasswordEncoder passwordEncoder, ChatRepository chatRepository,
+                       MessageRepository messageRepository) {
         this.userRepository = userRepository;
         this.jwtEncoder = jwtEncoder;
+        this.passwordEncoder = passwordEncoder;
+        this.chatRepository = chatRepository;
+        this.messageRepository = messageRepository;
         logger.debug("UserService initialized with UserRepository. Reference to:" + this);
     }
 
@@ -79,7 +91,7 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    // NEW: Add updateUser method
+    // Update user profile
     public User updateUser(Long userId, User updatedUserData) throws BootcampException {
         // Find existing user
         Optional<User> existingUserOpt = userRepository.findById(userId);
@@ -122,6 +134,75 @@ public class UserService implements UserDetailsService {
         // Don't update role unless it's an admin operation
 
         return userRepository.save(existingUser);
+    }
+
+    // Change user password
+    public void changePassword(Long userId, String currentPassword, String newPassword) throws BootcampException {
+        // Find existing user
+        Optional<User> existingUserOpt = userRepository.findById(userId);
+        if (!existingUserOpt.isPresent()) {
+            throw new BootcampException(HttpStatus.NOT_FOUND, "User not found with id: " + userId);
+        }
+
+        User existingUser = existingUserOpt.get();
+
+        // Verify current password
+        if (!passwordEncoder.matches(currentPassword, existingUser.getPassword())) {
+            throw new BootcampException(HttpStatus.BAD_REQUEST, "Current password is incorrect.");
+        }
+
+        // Check that new password is different
+        if (passwordEncoder.matches(newPassword, existingUser.getPassword())) {
+            throw new BootcampException(HttpStatus.BAD_REQUEST, "New password must be different from current password.");
+        }
+
+        // Validate new password length
+        if (newPassword.length() < 6) {
+            throw new BootcampException(HttpStatus.BAD_REQUEST, "New password must be at least 6 characters long.");
+        }
+
+        // Update password
+        existingUser.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(existingUser);
+
+        logger.info("Password changed successfully for user: " + existingUser.getUsername());
+    }
+
+    // Delete user account and all associated data
+    @Transactional
+    public void deleteUser(Long userId) throws BootcampException {
+        // Find existing user
+        Optional<User> existingUserOpt = userRepository.findById(userId);
+        if (!existingUserOpt.isPresent()) {
+            throw new BootcampException(HttpStatus.NOT_FOUND, "User not found with id: " + userId);
+        }
+
+        User existingUser = existingUserOpt.get();
+
+        try {
+            // Delete all messages in user's chats first
+            // Find all chats belonging to this user
+            List<dev.ctrlspace.bootcamp202506.springapi.models.Chat> userChats = chatRepository.findAll(userId, null, null, null);
+
+            for (dev.ctrlspace.bootcamp202506.springapi.models.Chat chat : userChats) {
+                // Delete all messages in each chat
+                messageRepository.deleteByChatId(chat.getId());
+            }
+
+            // Delete all chats belonging to this user
+            for (dev.ctrlspace.bootcamp202506.springapi.models.Chat chat : userChats) {
+                chatRepository.delete(chat);
+            }
+
+            // Finally, delete the user
+            userRepository.delete(existingUser);
+
+            logger.info("User account deleted successfully: " + existingUser.getUsername());
+
+        } catch (Exception e) {
+            logger.error("Error deleting user account: " + e.getMessage(), e);
+            throw new BootcampException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete user account: " + e.getMessage());
+        }
     }
 
     @Override
