@@ -35,13 +35,13 @@ body {
   width: 300px;
   height: 100vh;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgb(6, 21, 19);
   border-right: 2px solid rgba(0, 255, 214, 0.3);
   padding: 20px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
+  transition: width 0.1s ease;
   overflow: hidden;
 }
 
@@ -101,79 +101,79 @@ body {
   text-shadow: 0 0 5px #0ff;
 }
 
-/* Chat list */
-.chat-list-container {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
+/*!* Chat list *!*/
+/*.chat-list-container {*/
+/*  flex: 1;*/
+/*  overflow: hidden;*/
+/*  display: flex;*/
+/*  flex-direction: column;*/
+/*  min-height: 0;*/
+/*}*/
 
-.chat-list-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-}
+/*.chat-list-scroll {*/
+/*  flex: 1;*/
+/*  overflow-y: auto;*/
+/*  padding-right: 4px;*/
+/*}*/
 
-.chat-list-scroll::-webkit-scrollbar {
-  width: 6px;
-}
+/*.chat-list-scroll::-webkit-scrollbar {*/
+/*  width: 6px;*/
+/*}*/
 
-.chat-list-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
+/*.chat-list-scroll::-webkit-scrollbar-track {*/
+/*  background: #f1f1f1;*/
+/*  border-radius: 3px;*/
+/*}*/
 
-.chat-list-scroll::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
+/*.chat-list-scroll::-webkit-scrollbar-thumb {*/
+/*  background: #c1c1c1;*/
+/*  border-radius: 3px;*/
+/*}*/
 
-.chat-list-scroll::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
-}
+/*.chat-list-scroll::-webkit-scrollbar-thumb:hover {*/
+/*  background: #a1a1a1;*/
+/*}*/
 
-.chat-list-scroll ul li {
-  padding: 8px 12px;
-  margin: 2px 0;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  min-height: 36px;
-}
+/*.chat-list-scroll ul li {*/
+/*  padding: 8px 12px;*/
+/*  margin: 2px 0;*/
+/*  border-radius: 6px;*/
+/*  transition: background-color 0.2s ease;*/
+/*  font-size: 14px;*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  min-height: 36px;*/
+/*}*/
 
-.chat-list-scroll ul li.active {
-  background-color: #e3f2fd !important;
-  border-left: 3px solid #2196f3;
-}
+/*.chat-list-scroll ul li.active {*/
+/*  background-color: #e3f2fd !important;*/
+/*  border-left: 3px solid #2196f3;*/
+/*}*/
 
-.chat-list-scroll ul li:hover {
-  background-color: #f5f5f5;
-}
+/*.chat-list-scroll ul li:hover {*/
+/*  background-color: #f5f5f5;*/
+/*}*/
 
-.chat-list-scroll ul li:first-child {
-  font-weight: 600;
-  color: #2196f3;
-}
+/*.chat-list-scroll ul li:first-child {*/
+/*  font-weight: 600;*/
+/*  color: #2196f3;*/
+/*}*/
 
-.chat-list-scroll ul li:first-child:hover {
-  background-color: #e3f2fd;
-}
+/*.chat-list-scroll ul li:first-child:hover {*/
+/*  background-color: #e3f2fd;*/
+/*}*/
 
-.chat-list-scroll input {
-  font-size: 14px;
-  padding: 2px 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-}
+/*.chat-list-scroll input {*/
+/*  font-size: 14px;*/
+/*  padding: 2px 6px;*/
+/*  border: 1px solid #ccc;*/
+/*  border-radius: 4px;*/
+/*  outline: none;*/
+/*}*/
 
-.chat-list-scroll input:focus {
-  border-color: #2196f3;
-}
+/*.chat-list-scroll input:focus {*/
+/*  border-color: #2196f3;*/
+/*}*/
 
 /* Profile section */
 .profile-section {
@@ -235,7 +235,7 @@ body {
 .main-chat h2 {
   padding: 1rem;
   margin: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgb(10, 39, 35);
   border-bottom: 1px solid rgba(0, 255, 214, 0.3);
   color: #00ffd6;
   font-family: 'Courier New', monospace;
@@ -275,22 +275,37 @@ body {
 }
 
 .chat-bubble.self {
-  background: linear-gradient(135deg, #00ffd6, #0088cc) !important;
-  color: #000 !important;
+  background: linear-gradient(135deg, #00ffd6 0%, #00b8e6 50%, #0088cc 100%) !important;
+  color: #001f26 !important;  /* slightly darker for readability */
   align-self: flex-end;
   margin-left: auto;
-  border-bottom-right-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 255, 214, 0.3);
+  border-bottom-right-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 12px rgba(0, 255, 214, 0.25);
+  font-size: 17px;
+  font-weight: 600;  /* make text thicker */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0, 255, 214, 0.15);  /* subtle glow, not overpowering */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-bubble.self:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 255, 214, 0.3);
 }
 
 .chat-bubble.other {
-  background: rgba(255, 0, 255, 0.15) !important;
-  border: 1px solid rgba(255, 0, 255, 0.4);
-  color: #ff00ff !important;
+  background: rgba(120, 80, 180, 0.15) !important;  /* soft violet background */
+  border: 1px solid rgba(160, 120, 220, 0.5);       /* muted purple border */
+  color: #d8bfff !important;                        /* softer lavender text */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;  /* clean modern font */
+  line-height: 1.5;                                 /* more space between lines */
   align-self: flex-start;
   margin-right: auto;
-  border-bottom-left-radius: 5px;
-  box-shadow: 0 2px 10px rgba(255, 0, 255, 0.2);
+  border-bottom-left-radius: 6px;
+  box-shadow: 0 2px 8px rgba(160, 120, 220, 0.3);
+  font-size: 16px; /* increase this to make letters bigger *//* gentle futuristic glow */
 }
 
 .chat-bubble p {
@@ -352,24 +367,30 @@ body {
   background: linear-gradient(45deg, #00ffd6, #ff00ff);
   border: none;
   border-radius: 8px;
-  color: #000;
-  font-weight: bold;
-  font-family: 'Courier New', monospace;
+  color: #ffffff; /* white is more readable on gradients */
+  font-weight: 700; /* heavier for better visibility */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; /* cleaner font */
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 120px;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 15px; /* slightly larger */
   box-shadow: 0 0 15px rgba(0, 255, 214, 0.4);
+  text-shadow: 0 0 4px rgb(36, 53, 50); /* subtle shadow for contrast */
 }
 
-.chat-input .neon-btn:hover:not(:disabled) {
+/* Optional hover effect for extra neon pop */
+.chat-input .neon-btn:hover {
+  box-shadow: 0 0 25px rgba(0, 255, 214, 0.6), 0 0 25px rgba(255, 0, 255, 0.6);
+}
+
+.chat-input .neon-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 25px rgba(255, 0, 255, 0.6);
   background: linear-gradient(45deg, #ff00ff, #00ffd6);
 }
 
-.chat-input .neon-btn:disabled {
+.chat-input .neon-btn {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -621,4 +642,386 @@ body {
   50% {
     opacity: 1;
   }
+}
+
+
+/*********Model Menu
+ */
+
+/* Container */
+.model-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  font-family: "Orbitron", sans-serif; /* try a futuristic font */
+}
+
+/* Label */
+.model-label {
+  color: cyan;
+  text-shadow: 0 0 6px cyan;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+/* Select Box */
+.model-select {
+  background: rgba(10, 39, 35, 0.6);
+  color: #0ff;
+  border: 2px solid rgba(0, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  text-shadow: 0 0 4px #0ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  appearance: none; /* remove default arrow */
+  position: relative;
+}
+
+/* Add a custom arrow */
+.model-select::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  color: cyan;
+  pointer-events: none;
+}
+
+/* Hover and focus effects */
+.model-select:hover {
+  border-color: #0ff;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
+}
+
+.model-select:focus {
+  border-color: #00ffaa;
+  box-shadow: 0 0 16px rgba(0, 255, 170, 0.8);
+}
+
+/* Options inside the dropdown */
+.model-select option {
+  background: #051f1c;
+  color: cyan;
+  padding: 8px;
+  font-size: 14px;
+}
+
+
+/*History section*/
+
+/* Outer container */
+.chat-list-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  backdrop-filter: blur(10px);
+
+  overflow: hidden;
+}
+
+/* Scrollable area */
+.chat-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+/* Custom scrollbar */
+.chat-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-list-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.4);
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+.chat-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.8);
+}
+
+/* UL styling */
+.chat-list-scroll ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* List items (base) */
+.chat-list-scroll li {
+  padding: 10px 12px;
+  margin: 4px 8px;
+  color: cyan;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hover */
+.chat-list-scroll li:hover {
+  background: rgba(0, 255, 255, 0.08);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+  transform: translateX(2px);
+}
+
+/* Active chat */
+.chat-item.active {
+  background: rgba(0, 255, 200, 0.15);
+  border: 1px solid rgba(0, 255, 200, 0.5);
+  box-shadow: 0 0 12px rgba(0, 255, 200, 0.6);
+}
+
+/* Title text */
+.chat-title {
+  color: cyan;
+  text-shadow: 0 0 4px cyan;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Input for editing chat name */
+.chat-title-input {
+  background: rgba(5, 25, 23, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 4px;
+  color: #0ff;
+  padding: 4px 6px;
+  font-size: 14px;
+  outline: none;
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+}
+
+/* Controls (edit/delete buttons) */
+.chat-controls {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.chat-item:hover .chat-controls {
+  opacity: 1; /* show buttons on hover */
+}
+
+/* Individual control buttons */
+.chat-control-btn {
+  background: transparent;
+  border: none;
+  color: rgba(0, 255, 255, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+}
+.chat-control-btn:hover {
+  color: #0ff;
+  transform: scale(1.2);
+}
+
+/* Special: New Chat button */
+.new-chat-btn {
+  color: #00ffaa;
+  font-weight: bold;
+  border: 1px dashed rgba(0, 255, 170, 0.6);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+.new-chat-btn:hover {
+  background: rgba(0, 255, 170, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 170, 0.6);
+}
+
+/*For message edit action button************************/
+
+/* Container around textarea + actions */
+.message-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 6px;
+  background: rgba(10, 39, 35, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  border-radius: 10px;
+  box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.15);
+  animation: fadeIn 0.25s ease;
+}
+
+/* Textarea */
+.message-edit-textarea {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: cyan;
+  background: rgba(5, 20, 20, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.35);
+  border-radius: 6px;
+  outline: none;
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.2);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.message-edit-textarea:focus {
+  border-color: #00ffaa;
+  box-shadow: 0 0 12px rgba(0, 255, 170, 0.6);
+}
+
+/* Action buttons row */
+.message-edit-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Save button */
+.save-edit-btn {
+  background: linear-gradient(135deg, rgba(0, 255, 170, 0.8), rgba(0, 200, 255, 0.8));
+  color: #001818;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 4px rgba(0, 255, 255, 0.7);
+}
+
+.save-edit-btn:hover:not(:disabled) {
+  box-shadow: 0 0 12px rgba(0, 255, 200, 0.7);
+  transform: translateY(-1px);
+}
+
+.save-edit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Cancel button */
+.cancel-edit-btn {
+  background: rgba(0, 0, 0, 0.4);
+  color: cyan;
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-edit-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 255, 0.08);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+}
+
+.cancel-edit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Soft fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
+/* Container for actions */
+.message-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  justify-content: flex-end;
+  opacity: 0;
+  pointer-events: none; /* prevent hover on hidden buttons */
+  transition: opacity 0.25s ease;
+}
+
+/* Only show when hovering the whole message */
+.chat-bubble:hover .message-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Base action button style – no border, subtle background */
+.message-action-btn {
+  background: rgba(0, 255, 255, 0.05);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 14px;
+  cursor: pointer;
+  color: cyan;
+  text-shadow: none;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+/* Hover effect – delicate glow, no border */
+.message-action-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 255, 0.12);
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+  transform: translateY(-1px);
+  opacity: 1;
+}
+
+/* Disabled state */
+.message-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Edit button glow (green tint) */
+.edit-message-btn:hover:not(:disabled) {
+  box-shadow: 0 0 8px rgba(0, 255, 170, 0.5);
+  color: #00ffaa;
+}
+
+/* Regenerate button glow (blue tint) */
+.regenerate-btn:hover:not(:disabled) {
+  box-shadow: 0 0 8px rgba(0, 200, 255, 0.5);
+  color: #00d0ff;
+}
+
+
+
+.chat-messages {
+  overflow-y: auto;
+  scrollbar-width: thin;       /* for Firefox */
+  scrollbar-color: #1e786c transparent; /* for Firefox */
+}
+
+/* Chrome, Edge, Safari */
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1); /* subtle dark track */
+  border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 214, 0.6); /* cyan futuristic thumb */
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(0, 255, 214, 0.5); /* subtle glow */
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 214, 0.8);
+  box-shadow: 0 0 10px rgba(0, 255, 214, 0.7);
 }

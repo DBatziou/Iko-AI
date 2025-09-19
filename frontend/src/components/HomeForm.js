@@ -1,8 +1,10 @@
 "use client";
+import { Pen, RefreshCw } from "lucide-react";
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+
 
 export default function HomeForm() {
     const router = useRouter();
@@ -677,6 +679,7 @@ export default function HomeForm() {
                                                 className="message-content"
                                                 dangerouslySetInnerHTML={{ __html: renderMessageContent(m.content) }}
                                             />
+
                                             <div className="message-actions">
                                                 {m.fromSelf && (
                                                     <button
@@ -685,7 +688,7 @@ export default function HomeForm() {
                                                         title="Edit message"
                                                         disabled={isLoading}
                                                     >
-                                                        ✏
+                                                        <Pen size={16} />
                                                     </button>
                                                 )}
                                                 {!m.fromSelf && (
@@ -695,7 +698,7 @@ export default function HomeForm() {
                                                         title="Regenerate response"
                                                         disabled={isLoading}
                                                     >
-                                                        {isLoading ? "..." : "🔄"}
+                                                        {isLoading ? "..." : "⟳"}
                                                     </button>
                                                 )}
                                             </div>
