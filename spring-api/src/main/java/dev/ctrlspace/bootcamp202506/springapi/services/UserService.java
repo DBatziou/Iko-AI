@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -76,6 +77,51 @@ public class UserService implements UserDetailsService {
 
         user = userRepository.save(user);
         return user;
+    }
+
+    // NEW: Add updateUser method
+    public User updateUser(Long userId, User updatedUserData) throws BootcampException {
+        // Find existing user
+        Optional<User> existingUserOpt = userRepository.findById(userId);
+        if (!existingUserOpt.isPresent()) {
+            throw new BootcampException(HttpStatus.NOT_FOUND, "User not found with id: " + userId);
+        }
+
+        User existingUser = existingUserOpt.get();
+
+        // Check if new username is taken by another user
+        if (updatedUserData.getUsername() != null && !updatedUserData.getUsername().equals(existingUser.getUsername())) {
+            User userWithSameUsername = userRepository.findUserByUsername(updatedUserData.getUsername());
+            if (userWithSameUsername != null && !userWithSameUsername.getId().equals(userId)) {
+                throw new BootcampException(HttpStatus.CONFLICT, "Username " + updatedUserData.getUsername() + " is already taken.");
+            }
+        }
+
+        // Check if new email is taken by another user
+        if (updatedUserData.getEmail() != null && !updatedUserData.getEmail().equals(existingUser.getEmail())) {
+            User userWithSameEmail = userRepository.findByEmail(updatedUserData.getEmail());
+            if (userWithSameEmail != null && !userWithSameEmail.getId().equals(userId)) {
+                throw new BootcampException(HttpStatus.CONFLICT, "Email " + updatedUserData.getEmail() + " is already taken.");
+            }
+        }
+
+        // Update fields
+        if (updatedUserData.getName() != null && !updatedUserData.getName().trim().isEmpty()) {
+            existingUser.setName(updatedUserData.getName().trim());
+        }
+
+        if (updatedUserData.getUsername() != null && !updatedUserData.getUsername().trim().isEmpty()) {
+            existingUser.setUsername(updatedUserData.getUsername().trim());
+        }
+
+        if (updatedUserData.getEmail() != null && !updatedUserData.getEmail().trim().isEmpty()) {
+            existingUser.setEmail(updatedUserData.getEmail().trim());
+        }
+
+        // Don't update password here unless explicitly handling it
+        // Don't update role unless it's an admin operation
+
+        return userRepository.save(existingUser);
     }
 
     @Override

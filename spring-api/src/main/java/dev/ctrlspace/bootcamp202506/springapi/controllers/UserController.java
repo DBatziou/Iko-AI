@@ -71,6 +71,22 @@ public class UserController {
         return userService.createUser(user);
     }
 
+    // NEW: Add PUT endpoint for updating user profile
+    @PutMapping("/users/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser, Authentication authentication) throws BootcampException {
+        User loggedInUser = userService.getLoggedInUser(authentication);
+
+        // Check if user is updating their own profile or is admin
+        boolean isAdmin = "ROLE_ADMIN".equals(loggedInUser.getRole());
+        boolean isSelf = id.equals(loggedInUser.getId());
+
+        if (!(isAdmin || isSelf)) {
+            throw new BootcampException(HttpStatus.FORBIDDEN, "You are not allowed to update this user.");
+        }
+
+        return userService.updateUser(id, updatedUser);
+    }
+
     // Add this endpoint for checking username availability
     @GetMapping("/check-username/{username}")
     public boolean checkUsernameExists(@PathVariable String username) {

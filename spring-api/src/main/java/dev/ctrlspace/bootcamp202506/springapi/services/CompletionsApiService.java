@@ -11,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CompletionsApiService {
@@ -24,6 +26,12 @@ public class CompletionsApiService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
+    // Map of potentially deprecated models to current alternatives
+    private final Map<String, String> modelMapping = Map.of(
+            "mixtral-8x7b-32768", "llama-3.1-8b-instant",
+            "gemma-7b-it", "gemma2-9b-it"
+    );
+
     public CompletionsApiService() {
         this.restTemplate = new RestTemplate();
         this.objectMapper = new ObjectMapper();
@@ -31,6 +39,12 @@ public class CompletionsApiService {
 
     public String getCompletion(String model, String userMessage) {
         try {
+            // Check if the requested model needs to be mapped to a current one
+            String actualModel = modelMapping.getOrDefault(model, model);
+            if (!actualModel.equals(model)) {
+                System.out.println("Model " + model + " mapped to " + actualModel);
+            }
+
             // Groq API endpoint
             String url = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -41,7 +55,7 @@ public class CompletionsApiService {
 
             // Create request body
             GroqRequest request = new GroqRequest();
-            request.setModel(model);
+            request.setModel(actualModel);
             request.setMessages(List.of(new GroqMessage("user", userMessage)));
             request.setMaxTokens(1024);
             request.setTemperature(0.7);
@@ -80,6 +94,27 @@ public class CompletionsApiService {
             }
 
             return "Sorry, I couldn't generate a response at this time.";
+
+        } catch (HttpClientErrorException e) {
+            System.err.println("HTTP Error in getCompletion: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+
+            // Handle specific model deprecation errors
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                try {
+                    JsonNode errorResponse = objectMapper.readTree(e.getResponseBodyAsString());
+                    String errorMessage = errorResponse.path("error").path("message").asText("");
+
+                    if (errorMessage.contains("decommissioned") || errorMessage.contains("deprecated")) {
+                        System.err.println("Model " + model + " is deprecated, falling back to default model");
+                        // Fallback to default model
+                        return getCompletion("llama-3.1-8b-instant", userMessage);
+                    }
+                } catch (Exception parseError) {
+                    System.err.println("Error parsing error response: " + parseError.getMessage());
+                }
+            }
+
+            return "Sorry, I encountered an error with the AI service. Please try again.";
 
         } catch (Exception e) {
             System.err.println("Error in getCompletion: " + e.getMessage());

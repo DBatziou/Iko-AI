@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
@@ -82,13 +84,31 @@ public class ChatController {
         // Verify the chat belongs to the logged-in user (or user is admin)
         Chat existingChat = chatService.getChatById(id);
         if (existingChat == null) {
-            throw new BootcampException(org.springframework.http.HttpStatus.NOT_FOUND, "Chat not found");
+            throw new BootcampException(HttpStatus.NOT_FOUND, "Chat not found");
         }
 
         if (!existingChat.getUserId().equals(loggedInUser.getId()) && !"ROLE_ADMIN".equals(loggedInUser.getRole())) {
-            throw new BootcampException(org.springframework.http.HttpStatus.FORBIDDEN, "You can only update your own chats");
+            throw new BootcampException(HttpStatus.FORBIDDEN, "You can only update your own chats");
         }
 
         return chatService.updateChat(id, chatUpdate);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteChat(@PathVariable Long id, Authentication authentication) throws BootcampException {
+        User loggedInUser = userService.getLoggedInUser(authentication);
+
+        // Verify the chat belongs to the logged-in user (or user is admin)
+        Chat existingChat = chatService.getChatById(id);
+        if (existingChat == null) {
+            throw new BootcampException(HttpStatus.NOT_FOUND, "Chat not found");
+        }
+
+        if (!existingChat.getUserId().equals(loggedInUser.getId()) && !"ROLE_ADMIN".equals(loggedInUser.getRole())) {
+            throw new BootcampException(HttpStatus.FORBIDDEN, "You can only delete your own chats");
+        }
+
+        chatService.deleteChat(id);
+        return ResponseEntity.ok().build();
     }
 }

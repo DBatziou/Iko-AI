@@ -4,9 +4,11 @@ import dev.ctrlspace.bootcamp202506.springapi.exceptions.BootcampException;
 import dev.ctrlspace.bootcamp202506.springapi.models.Chat;
 import dev.ctrlspace.bootcamp202506.springapi.models.criteria.ChatCriteria;
 import dev.ctrlspace.bootcamp202506.springapi.repositories.ChatRepository;
+import dev.ctrlspace.bootcamp202506.springapi.repositories.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,10 +18,12 @@ import java.util.Optional;
 public class ChatService {
 
     private final ChatRepository chatRepository;
+    private final MessageRepository messageRepository;
 
     @Autowired
-    public ChatService(ChatRepository chatRepository) {
+    public ChatService(ChatRepository chatRepository, MessageRepository messageRepository) {
         this.chatRepository = chatRepository;
+        this.messageRepository = messageRepository;
     }
 
     public List<Chat> getAll(ChatCriteria criteria) throws BootcampException {
@@ -56,5 +60,17 @@ public class ChatService {
     public Chat getChatById(Long id) {
         Optional<Chat> chat = chatRepository.findById(id);
         return chat.orElse(null);
+    }
+
+    @Transactional
+    public void deleteChat(Long id) throws BootcampException {
+        Chat existingChat = chatRepository.findById(id)
+                .orElseThrow(() -> new BootcampException(HttpStatus.NOT_FOUND, "Chat not found with id: " + id));
+
+        // Delete all messages in this chat first
+        messageRepository.deleteByChatId(id);
+
+        // Then delete the chat
+        chatRepository.delete(existingChat);
     }
 }

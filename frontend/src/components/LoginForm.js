@@ -55,7 +55,18 @@ export default function LoginForm() {
             window.location.href = "/";
         } catch (error) {
             console.error("Login error:", error);
-            setMessage(`❌ ${error.message}`);
+
+            // Better error handling
+            let errorMessage = "❌ Login failed. Please try again.";
+            if (error.response?.status === 401) {
+                errorMessage = "❌ Invalid username or password.";
+            } else if (error.response?.status === 500) {
+                errorMessage = "❌ Server error. Please try again later.";
+            } else if (error.message) {
+                errorMessage = `❌ ${error.message}`;
+            }
+
+            setMessage(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -107,7 +118,32 @@ export default function LoginForm() {
             window.location.href = "/";
         } catch (error) {
             console.error("Signup error:", error);
-            setMessage(`❌ ${error.message}`);
+
+            // Better error handling for signup
+            let errorMessage = "❌ Signup failed. Please try again.";
+
+            if (error.response?.status === 400) {
+                const responseData = error.response.data;
+                if (typeof responseData === 'string') {
+                    if (responseData.includes('username') && responseData.includes('already exists')) {
+                        errorMessage = "❌ Username already exists. Please choose another.";
+                    } else if (responseData.includes('email') && responseData.includes('already exists')) {
+                        errorMessage = "❌ Email already exists. Please use another email.";
+                    } else {
+                        errorMessage = `❌ ${responseData}`;
+                    }
+                } else if (responseData?.message) {
+                    errorMessage = `❌ ${responseData.message}`;
+                }
+            } else if (error.response?.status === 409) {
+                errorMessage = "❌ Username or email already exists. Please try different credentials.";
+            } else if (error.response?.status === 500) {
+                errorMessage = "❌ Server error. Please try again later.";
+            } else if (error.message) {
+                errorMessage = `❌ ${error.message}`;
+            }
+
+            setMessage(errorMessage);
         } finally {
             setIsLoading(false);
         }

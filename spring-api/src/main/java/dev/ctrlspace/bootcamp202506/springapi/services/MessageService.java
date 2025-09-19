@@ -1,11 +1,14 @@
 package dev.ctrlspace.bootcamp202506.springapi.services;
 
+import dev.ctrlspace.bootcamp202506.springapi.exceptions.BootcampException;
 import dev.ctrlspace.bootcamp202506.springapi.models.Message;
 import dev.ctrlspace.bootcamp202506.springapi.repositories.MessageRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MessageService {
@@ -19,6 +22,10 @@ public class MessageService {
     }
 
     public Message createMessage(Message message) {
+        return createMessageWithModel(message, "llama-3.1-8b-instant");
+    }
+
+    public Message createMessageWithModel(Message message, String model) {
         try {
             // First, save the user message to database
             message.setCreatedAt(Instant.now());
@@ -27,8 +34,8 @@ public class MessageService {
 
             System.out.println("User message saved: " + savedUserMessage.getContent());
 
-            // Get AI response
-            String aiResponse = completionsApiService.getCompletion("llama-3.1-8b-instant", message.getContent());
+            // Get AI response using specified model
+            String aiResponse = completionsApiService.getCompletion(model, message.getContent());
             System.out.println("AI response received: " + aiResponse);
 
             // Create and save AI message
@@ -71,6 +78,65 @@ public class MessageService {
             System.err.println("Error fetching messages for chatId " + chatId + ": " + e.getMessage());
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    public Message getMessageById(Long id) {
+        Optional<Message> message = messageRepository.findById(id);
+        return message.orElse(null);
+    }
+
+    public Message updateMessage(Long id, String newContent) throws BootcampException {
+        Message message = messageRepository.findById(id)
+                .orElseThrow(() -> new BootcampException(HttpStatus.NOT_FOUND, "Message not found with id: " + id));
+
+        message.setContent(newContent);
+        return messageRepository.save(message);
+    }
+
+    public Message regenerateMessage(Long id, String model) throws BootcampException {
+        return regenerateMessage(id, model, null);
+    }
+
+    public Message regenerateMessage(Long id, String model, String newUserInput) throws BootcampException {
+        Message aiMessage = messageRepository.findById(id)
+                .orElseThrow(() -> new BootcampException(HttpStatus.NOT_FOUND, "Message not found with id: " + id));
+
+        try {
+            String promptToUse = newUserInput;
+
+            // If no new user input provided, find the previous user message
+            if (promptToUse == null) {
+                List<Message> messages = messageRepository.findByChatIdOrderByCreatedAtAsc(aiMessage.getChatId());
+                Message userMessage = null;
+
+                for (int i = 0; i < messages.size(); i++) {
+                    if (messages.get(i).getId().equals(id) && i > 0) {
+                        userMessage = messages.get(i - 1);
+                        break;
+                    }
+                }
+
+                if (userMessage == null || !userMessage.getFromSelf()) {
+                    throw new BootcampException(HttpStatus.BAD_REQUEST, "Cannot find corresponding user message");
+                }
+
+                promptToUse = userMessage.getContent();
+            }
+
+            // Generate new AI response using specified model
+            String newAiResponse = completionsApiService.getCompletion(model, promptToUse);
+
+            // Update the existing AI message
+            aiMessage.setContent(newAiResponse);
+            aiMessage.setCreatedAt(Instant.now()); // Update timestamp
+
+            return messageRepository.save(aiMessage);
+
+        } catch (Exception e) {
+            System.err.println("Error regenerating message: " + e.getMessage());
+            e.printStackTrace();
+            throw new BootcampException(HttpStatus.INTERNAL_SERVER_ERROR, "Error regenerating message: " + e.getMessage());
         }
     }
 }
