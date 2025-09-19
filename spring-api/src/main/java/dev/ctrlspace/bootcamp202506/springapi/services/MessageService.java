@@ -5,7 +5,7 @@ import dev.ctrlspace.bootcamp202506.springapi.repositories.MessageRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List; // Add this missing import
+import java.util.List;
 
 @Service
 public class MessageService {
@@ -19,20 +19,46 @@ public class MessageService {
     }
 
     public Message createMessage(Message message) {
-        // Save user message to DB here if you want (optional)
+        try {
+            // First, save the user message to database
+            message.setCreatedAt(Instant.now());
+            message.setFromSelf(true); // Mark as user message
+            Message savedUserMessage = messageRepository.save(message);
 
-        // Call AI
-        String aiResponse = completionsApiService.getCompletion(message.getContent());
+            System.out.println("User message saved: " + savedUserMessage.getContent());
 
-        // Create AI message
-        Message llmMessage = new Message();
-        llmMessage.setContent(aiResponse);
-        llmMessage.setChatId(message.getChatId());
-        llmMessage.setCreatedAt(java.time.Instant.now());
-        llmMessage.setCreatedByUserId(null);
+            // Get AI response
+            String aiResponse = completionsApiService.getCompletion("llama-3.1-8b-instant", message.getContent());
+            System.out.println("AI response received: " + aiResponse);
 
-        // Save AI message to DB here if you want (optional)
-        return llmMessage;
+            // Create and save AI message
+            Message aiMessage = new Message();
+            aiMessage.setContent(aiResponse);
+            aiMessage.setChatId(message.getChatId());
+            aiMessage.setCreatedAt(Instant.now());
+            aiMessage.setFromSelf(false); // Mark as AI message
+            aiMessage.setCreatedByUserId(null); // AI messages don't have a user ID
+
+            Message savedAiMessage = messageRepository.save(aiMessage);
+            System.out.println("AI message saved: " + savedAiMessage.getContent());
+
+            // Return the AI message (the frontend expects this)
+            return savedAiMessage;
+
+        } catch (Exception e) {
+            System.err.println("Error in createMessage: " + e.getMessage());
+            e.printStackTrace();
+
+            // Create an error message
+            Message errorMessage = new Message();
+            errorMessage.setContent("Sorry, I encountered an error processing your message. Please try again.");
+            errorMessage.setChatId(message.getChatId());
+            errorMessage.setCreatedAt(Instant.now());
+            errorMessage.setFromSelf(false);
+            errorMessage.setCreatedByUserId(null);
+
+            return messageRepository.save(errorMessage);
+        }
     }
 
     public List<Message> getMessagesByChatId(Long chatId) {

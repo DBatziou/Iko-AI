@@ -4,6 +4,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Syne+Mono&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Doto:wght@100..900&family=Mountains+of+Christmas:wght@400;700&family=Syne+Mono&display=swap');
+
 html, body {
   height: 100%;
   width: 100%;
@@ -23,19 +25,18 @@ body {
 
 /* Main layout: sidebar + chat */
 .chatgpt-layout {
-  display: flex;           /* ✅ side by side */
-  height: 100vh;           /* ✅ fill viewport */
-  width: 100%;
+  display: flex;
+  height: 100vh;
   overflow: hidden;
 }
 
-/* Sidebar stays fixed height */
+/* Sidebar */
 .sidebar {
-  width: 240px;
-  flex-shrink: 0;           /* ✅ never shrink */
-  background: rgba(10, 39, 35, 0.72);
-  backdrop-filter: blur(12px);
-  border-right: 2px solid rgba(0, 255, 255, 0.2);
+  width: 300px;
+  height: 100vh;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.9);
+  border-right: 2px solid rgba(0, 255, 214, 0.3);
   padding: 20px;
   box-sizing: border-box;
   display: flex;
@@ -44,440 +45,74 @@ body {
   overflow: hidden;
 }
 
-/* When collapsed */
 .sidebar.collapsed {
-  width: 80px; /* Just enough for icons */
-}
-/* Default menu text visible */
-.sidebar .menu {
-  opacity: 1;
-  transition: opacity 0.2s ease; /* Quick fade in/out */
+  width: 60px;
 }
 
-/* When collapsed, instantly hide text */
+.sidebar.open {
+  width: 300px;
+}
+
+.sidebar .menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  height: 100%;
+  position: relative;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
 .sidebar.collapsed .menu {
   opacity: 0;
-  transition: opacity 0s ease; /* No fade, just hidden */
+  transition: opacity 0s ease;
 }
 
-/* When expanding back */
 .sidebar.expanding .menu {
-  opacity: 0; /* Keep hidden while expanding */
+  opacity: 0;
 }
 
-/* After fully expanded, show text */
 .sidebar.expanded .menu {
   opacity: 1;
-  transition: opacity 0.2s ease; /* Fade in after width transition */
+  transition: opacity 0.2s ease;
 }
 
-/* Keep sidebar text neat */
 .sidebar .menu h2 {
   color: cyan;
   text-shadow: 0 0 8px cyan;
 }
+
 .sidebar .menu ul {
   list-style: none;
   padding: 0;
+  margin: 0;
+  flex: 1;
 }
+
 .sidebar .menu li {
   padding: 10px 0;
   cursor: pointer;
   transition: color 0.3s;
 }
+
 .sidebar .menu li:hover {
   color: #0ff;
   text-shadow: 0 0 5px #0ff;
 }
 
-/* Main chat expands fully */
-.main-chat {
-  flex: 1;                  /* ✅ take remaining space */
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Chat messages scroll in available space */
-.chat-messages {
-  flex: 1;                  /* ✅ fill available space */
-  padding: 20px;
-  overflow-y: auto;
-  margin-bottom: 10px;      /* ✅ avoid sticking to input */
-}
-
-/* Welcome screen fills the same space */
-.welcome-screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-/* Input bar always at bottom */
-.chat-input {
-  display: flex;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-top: 2px solid rgba(0, 255, 255, 0.2);
-}
-
-
-
-/* Neon chat look */
-.message.user {
-  background: rgba(0, 255, 255, 0.1);
-  padding: 10px;
-  margin-bottom: 10px;
-  border-left: 3px solid cyan;
-  border-radius: 5px;
-}
-
-/* Buttons */
-.chat-input input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: white;
-  padding: 10px;
-  font-family: inherit;
-  outline: none;
-}
-.neon-btn {
-  background: cyan;
-  color: black;
-  border: none;
-  padding: 10px 15px;
-  margin-left: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  text-shadow: 0 0 5px #000;
-  box-shadow: 0 0 10px cyan, 0 0 20px cyan;
-  transition: 0.3s;
-}
-.neon-btn:hover {
-  background: #0ff;
-  box-shadow: 0 0 15px cyan, 0 0 30px cyan;
-}
-
-/* By default, chat hasn't started */
-.chat-messages,
-.conversation-input {
-  display: none; /* hide messages + bottom input */
-}
-
-/* When conversation starts */
-.conversation-started .welcome-screen {
-  display: none; /* hide title + hints + center input */
-}
-.conversation-started .chat-messages,
-.conversation-started .conversation-input {
-  display: flex; /* show chat + bottom input */
-}
-
-/* Initial centered input for first message */
-.initial-input {
-  margin-top: 30px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  width: 100%;
-  max-width: 600px;
-}
-
-/* Prompt hint cards restored */
-.prompt-hints {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.hint-card {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 15px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 255, 255, 0.2);
-  cursor: pointer;
-  transition: 0.3s;
-}
-.hint-card:hover {
-  background: rgba(0, 255, 255, 0.1);
-  text-shadow: 0 0 5px cyan;
-}
-.mainChat {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
-/* Hide messages + bottom input before conversation starts */
-.chatMessages,
-.conversationInput {
-  display: none;
-}
-
-/* When conversation starts -> hide welcome, show chat */
-.conversationStarted .welcomeScreen {
-  display: none;
-}
-.conversationStarted .chatMessages,
-.conversationStarted .conversationInput {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-/* Welcome Screen layout */
-.welcomeScreen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-/* Neon title + subtitle */
-.neonTitle {
-  font-size: 2.5rem;
-  color: cyan;
-  text-shadow: 0 0 10px cyan, 0 0 20px #0ff;
-}
-.neonSub {
-  color: #aaa;
-  margin-bottom: 20px;
-}
-
-/* Hint prompt cards */
-.promptHints {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.hintCard {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 15px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 255, 255, 0.2);
-  cursor: pointer;
-  transition: 0.3s;
-}
-.hintCard:hover {
-  background: rgba(0, 255, 255, 0.1);
-  text-shadow: 0 0 5px cyan;
-}
-
-/* Input styling */
-.chatInput {
-  display: flex;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-top: 2px solid rgba(0, 255, 255, 0.2);
-}
-.chatInput input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: white;
-  padding: 10px;
-  font-family: inherit;
-  outline: none;
-}
-
-/* Centered input for first message */
-.initialInput {
-  margin-top: 30px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  width: 100%;
-  max-width: 600px;
-}
-
-/* Chat messages layout */
-.chatMessages {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-}
-.message.user {
-  background: rgba(0, 255, 255, 0.1);
-  padding: 10px;
-  margin-bottom: 10px;
-  border-left: 3px solid cyan;
-  border-radius: 5px;
-}
-
-/* Neon send button */
-.neonBtn {
-  background: cyan;
-  color: black;
-  border: none;
-  padding: 10px 15px;
-  margin-left: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-weight: bold;
-  text-shadow: 0 0 5px #000;
-  box-shadow: 0 0 10px cyan, 0 0 20px cyan;
-  transition: 0.3s;
-}
-.neonBtn:hover {
-  background: #0ff;
-  box-shadow: 0 0 15px cyan, 0 0 30px cyan;
-
-}
-
-.toggle-btn{
-  background: transparent;
-  color: white;
-  border-radius: 150%;
-  padding: 2px;
-  width: 0.9cm;
-  height: 0.9cm;
-  border: none;
-
-}
-.toggle-btn:hover{
-  background: #388181;
-  box-shadow: 0 0 15px cyan, 0 0 30px cyan;
-  cursor: pointer;
-
-
-}
-/* Sidebar content now uses flex column */
-.sidebar .menu {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
-/* Keep the list normal */
-.sidebar .menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1; /* pushes profile section to bottom */
-}
-/* Make the profile button behave like other menu items */
-.profile-menu-item {
-  list-style: none;
-  margin-top: 10px;
-}
-/* Profile section pinned at bottom */
-.profile-section {
-  margin-top: auto;
-  padding-top: 15px;
-  border-top: 1px solid rgba(0, 255, 255, 0.2);
-}
-
-/* Profile button look */
-.profile-image-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: none;
-  border: none;
-  color: cyan;
-  cursor: pointer;
-
-  text-align: left;
-  font-family: inherit;
-  font-size: 16px;
-  padding: 10px 0;
-  transition: color 0.3s, text-shadow 0.3s;
-}
-
-.profile-image-btn img {
-
-  width: 40px;
-  height: 40px;
-  border-radius: 50%; /* Perfect circle */
-  border: 2px solid cyan; /* Thin, tight neon border */
-  background: black; /* Keeps it clean against glow */
-  box-shadow: 0 0 4px rgba(0, 255, 255, 0.4); /* Very subtle glow */
-  object-fit: cover;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-  /* ❌ REMOVE padding - it made the border look huge */
-}
-
-
-
-.profile-image-btn img:hover {
-
-  transform: scale(1.2);
-
-}
-
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: none;
-  border: none;
-  color: cyan;
-  cursor: pointer;
-
-  text-align: left;
-  font-family: inherit;
-  font-size: 16px;
-  padding: 10px 0;
-  transition: color 0.3s, text-shadow 0.3s;
-}
-
-.logout-btn img {
-
-  width: 40px;
-  height: 40px;
-  border-radius: 50%; /* Perfect circle */
-  border: 2px solid cyan; /* Thin, tight neon border */
-  background: #21dfba; /* Keeps it clean against glow */
-  box-shadow: 0 0 4px rgba(0, 255, 255, 0.4); /* Very subtle glow */
-  object-fit: cover;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-  /* ❌ REMOVE padding - it made the border look huge */
-}
-
-.logout-btn img:hover {
-
-  transform: scale(1.2);
-
-}
-
-
-/* Add this CSS to your stylesheet */
-
-.menu {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
+/* Chat list */
 .chat-list-container {
-  flex: 1; /* Take up all available space */
-  overflow: hidden; /* Prevent outer container from scrolling */
+  flex: 1;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 0; /* Important for flex child to shrink */
+  min-height: 0;
 }
 
 .chat-list-scroll {
   flex: 1;
-  overflow-y: auto; /* Enable scrolling for chat list only */
+  overflow-y: auto;
   padding-right: 4px;
 }
 
@@ -499,15 +134,6 @@ body {
   background: #a1a1a1;
 }
 
-.profile-section {
-  margin-top: auto; /* Push to bottom */
-  padding: 16px 0;
-  border-top: 1px solid #e5e5e5;
-  background: inherit; /* Keep same background as sidebar */
-  flex-shrink: 0; /* Don't shrink */
-}
-
-/* Chat item styling */
 .chat-list-scroll ul li {
   padding: 8px 12px;
   margin: 2px 0;
@@ -537,7 +163,6 @@ body {
   background-color: #e3f2fd;
 }
 
-/* Edit input styling */
 .chat-list-scroll input {
   font-size: 14px;
   padding: 2px 6px;
@@ -550,78 +175,180 @@ body {
   border-color: #2196f3;
 }
 
-/* Ensure sidebar has proper height */
-.sidebar {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Profile section */
+.profile-section {
+  margin-top: auto;
+  padding: 16px 0;
+  border-top: 1px solid #e5e5e5;
+  background: inherit;
+  flex-shrink: 0;
 }
 
-.sidebar .menu {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
+.profile-menu-item {
+  list-style: none;
+  margin-top: 10px;
 }
 
+.profile-image-btn,
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  color: cyan;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 16px;
+  padding: 10px 0;
+  transition: color 0.3s, text-shadow 0.3s;
+}
 
+.profile-image-btn img,
+.logout-btn img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid cyan;
+  background: #21dfba;
+  box-shadow: 0 0 4px rgba(0, 255, 255, 0.4);
+  object-fit: cover;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
 
-/*********************************************/
+.profile-image-btn img:hover,
+.logout-btn img:hover {
+  transform: scale(1.2);
+}
 
-/* Add these CSS fixes to ensure proper chat layout */
-
+/* Main chat - FIXED LAYOUT */
 .main-chat {
   display: flex;
   flex-direction: column;
+  flex: 1;
   height: 100vh;
   position: relative;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .main-chat h2 {
   padding: 1rem;
   margin: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.8);
   border-bottom: 1px solid rgba(0, 255, 214, 0.3);
   color: #00ffd6;
   font-family: 'Courier New', monospace;
+  flex-shrink: 0;
 }
 
+/* FIXED: Chat messages container */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem;
-  margin-bottom: 0;
+  display: flex !important;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  min-height: 0;
+  max-height: calc(100vh - 200px);
 }
 
+/* FIXED: Chat bubble visibility and positioning */
+.chat-bubble {
+  max-width: 80%;
+  padding: 15px 20px;
+  border-radius: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  margin: 5px 0;
+  position: relative;
+  animation: fadeIn 0.3s ease-in;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 1;
+}
+
+.chat-bubble.self {
+  background: linear-gradient(135deg, #00ffd6, #0088cc) !important;
+  color: #000 !important;
+  align-self: flex-end;
+  margin-left: auto;
+  border-bottom-right-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 255, 214, 0.3);
+}
+
+.chat-bubble.other {
+  background: rgba(255, 0, 255, 0.15) !important;
+  border: 1px solid rgba(255, 0, 255, 0.4);
+  color: #ff00ff !important;
+  align-self: flex-start;
+  margin-right: auto;
+  border-bottom-left-radius: 5px;
+  box-shadow: 0 2px 10px rgba(255, 0, 255, 0.2);
+}
+
+.chat-bubble p {
+  margin: 0;
+  display: block !important;
+}
+
+.chat-bubble.other.thinking {
+  animation: pulse 1.5s infinite;
+}
+
+/* FIXED: Chat input positioning */
 .chat-input {
   position: sticky;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  border-top: 1px solid rgba(0, 255, 214, 0.3);
+  background: rgba(0, 0, 0, 0.95);
+  border-top: 2px solid rgba(0, 255, 214, 0.5);
   padding: 1rem;
-  display: flex;
-  gap: 10px;
+  display: flex !important;
+  gap: 15px;
   align-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 -5px 20px rgba(0, 255, 214, 0.2);
+  z-index: 10;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-input input {
   flex: 1;
   padding: 12px 16px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   border: 2px solid #00ffd6;
   border-radius: 8px;
   color: #00ffd6;
   font-family: 'Courier New', monospace;
+  font-size: 16px;
   outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 214, 0.3);
+}
+
+.chat-input input::placeholder {
+  color: rgba(0, 255, 214, 0.6);
 }
 
 .chat-input input:focus {
   border-color: #ff00ff;
-  box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+  color: #ff00ff;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+}
+
+.chat-input input:focus::placeholder {
+  color: rgba(255, 0, 255, 0.6);
 }
 
 .chat-input .neon-btn {
-  padding: 12px 20px;
+  padding: 12px 24px;
   background: linear-gradient(45deg, #00ffd6, #ff00ff);
   border: none;
   border-radius: 8px;
@@ -630,57 +357,26 @@ body {
   font-family: 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 100px;
+  min-width: 120px;
+  text-transform: uppercase;
+  font-size: 14px;
+  box-shadow: 0 0 15px rgba(0, 255, 214, 0.4);
 }
 
 .chat-input .neon-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+  box-shadow: 0 0 25px rgba(255, 0, 255, 0.6);
+  background: linear-gradient(45deg, #ff00ff, #00ffd6);
 }
 
 .chat-input .neon-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 0 10px rgba(0, 255, 214, 0.2);
 }
 
-/* Chat bubble styling */
-.chat-bubble {
-  margin: 10px 0;
-  padding: 12px 16px;
-  border-radius: 12px;
-  max-width: 70%;
-  font-family: 'Courier New', monospace;
-  word-wrap: break-word;
-}
-
-.chat-bubble.self {
-  background: linear-gradient(135deg, #00ffd6, #0088cc);
-  color: #000;
-  margin-left: auto;
-  border-bottom-right-radius: 4px;
-}
-
-.chat-bubble.other {
-  background: rgba(255, 0, 255, 0.1);
-  border: 1px solid rgba(255, 0, 255, 0.3);
-  color: #ff00ff;
-  margin-right: auto;
-  border-bottom-left-radius: 4px;
-}
-
-/* Hint card hover effects */
-.hint-card {
-  transition: all 0.3s ease;
-}
-
-.hint-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(0, 255, 214, 0.4);
-  border-color: #00ffd6;
-  background: rgba(0, 255, 214, 0.1);
-}
-
-/* Welcome screen layout */
+/* Welcome screen */
 .welcome-screen {
   display: flex;
   flex-direction: column;
@@ -688,6 +384,23 @@ body {
   align-items: center;
   height: 100%;
   padding: 2rem;
+  background: radial-gradient(circle, rgba(0, 255, 214, 0.05) 0%, rgba(255, 0, 255, 0.05) 100%);
+}
+
+.neon-title {
+  font-size: 3rem;
+  color: #00ffd6;
+  text-shadow: 0 0 20px rgba(0, 255, 214, 0.8);
+  font-family: 'Courier New', monospace;
+  margin-bottom: 0.5rem;
+}
+
+.neon-sub {
+  font-size: 1.2rem;
+  color: #ff00ff;
+  text-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
+  font-family: 'Courier New', monospace;
+  margin-bottom: 2rem;
 }
 
 .prompt-hints {
@@ -696,5 +409,216 @@ body {
   gap: 1rem;
   margin-top: 2rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
+}
+
+.hint-card {
+  padding: 15px 20px;
+  background: rgba(0, 255, 214, 0.1);
+  border: 2px solid rgba(0, 255, 214, 0.3);
+  border-radius: 10px;
+  color: #00ffd6;
+  font-family: 'Courier New', monospace;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+.hint-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 255, 214, 0.4);
+  border-color: #00ffd6;
+  background: rgba(0, 255, 214, 0.2);
+}
+
+.initial-input {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* REMOVED PROBLEMATIC CONVERSATION STATES - these were hiding elements */
+/* Toggle button */
+.toggle-btn {
+  background: transparent;
+  color: white;
+  border-radius: 50%;
+  padding: 2px;
+  width: 0.9cm;
+  height: 0.9cm;
+  border: none;
+}
+
+.toggle-btn:hover {
+  background: #388181;
+  box-shadow: 0 0 15px cyan, 0 0 30px cyan;
+  cursor: pointer;
+}
+
+/*PROFILE PAGE CSS*/
+/* Full-page layout */
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #0a2723, #070c0c);
+  color: #fff;
+  font-family: "Syne Mono", sans-serif;
+  padding-bottom: 50px;
+}
+
+/* Top Banner like Discord */
+.profile-banner {
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, cyan, #0a2723);
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.2);
+}
+
+/* Profile card that overlaps banner */
+.profile-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 15px;
+  width: 400px;
+  margin-top: -80px; /* Overlap banner */
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+/* Avatar overlapping banner like Discord */
+.avatar-section {
+  margin-top: -60px;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid cyan;
+  box-shadow: 0 0 15px cyan;
+  object-fit: cover;
+}
+
+/* Username + tag */
+.username {
+  font-size: 1.8rem;
+  margin: 10px 0 5px;
+  text-shadow: 0 0 8px cyan;
+}
+
+.user-tag {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.user-status {
+  margin-top: 10px;
+  font-style: italic;
+  color: #ccc;
+}
+
+/* Divider like Discord */
+.divider {
+  margin: 20px 0;
+  border: none;
+  height: 1px;
+  background: rgba(0, 255, 255, 0.2);
+}
+
+/* Extra profile details */
+.profile-details {
+  text-align: left;
+  font-size: 0.95rem;
+  color: #ddd;
+  line-height: 1.6;
+}
+
+/* Action buttons */
+.profile-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Unified neon button styling for profile */
+.profile-actions .neon-btn {
+  padding: 12px 24px;
+  background: linear-gradient(45deg, #00ffd6, #ff00ff);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 14px;
+  box-shadow: 0 0 15px rgba(0, 255, 214, 0.4);
+}
+
+.profile-actions .neon-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(255, 0, 255, 0.6);
+  background: linear-gradient(45deg, #ff00ff, #00ffd6);
+}
+
+.profile-actions .neon-btn.danger {
+  background: linear-gradient(45deg, #ff3b3b, #ff6b6b);
+  box-shadow: 0 0 15px rgba(255, 59, 59, 0.4);
+}
+
+.profile-actions .neon-btn.danger:hover {
+  background: linear-gradient(45deg, #ff6b6b, #ff3b3b);
+  box-shadow: 0 0 25px rgba(255, 59, 59, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Edit mode styles */
+.profile-details input {
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #00ffd6;
+  border-radius: 8px;
+  color: #00ffd6;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  padding: 8px 12px;
+  margin-left: 10px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.profile-details input:focus {
+  border-color: #ff00ff;
+  color: #ff00ff;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }

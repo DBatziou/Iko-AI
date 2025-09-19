@@ -196,28 +196,51 @@ export default function HomeForm() {
         }
 
         const userMessage = {
-            content: draft,
+            content: draft.trim(),
             chatId: activeThreadId,
             createdByUserId: currentUser.id
         };
 
-        // Clear input and add user message immediately
+        const currentDraft = draft.trim();
+
+        // Clear input and add user message immediately to UI
         setDraft("");
-        setMessages(prev => [...prev, { ...userMessage, fromSelf: true }]);
+        setMessages(prev => [...prev, {
+            ...userMessage,
+            fromSelf: true,
+            id: Date.now(), // temporary ID for UI
+            createdAt: new Date().toISOString()
+        }]);
         setIsLoading(true);
 
         try {
-            // Send message to backend - this will create both user message and AI response
+            console.log("Sending message:", userMessage);
+
+            // Send message to backend - this will save user message and return AI response
             const resp = await axios.post(`${API_URL}/messages`, userMessage, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // The response contains the AI message, add it to the messages
-            setMessages(prev => [...prev, resp.data]);
+            console.log("AI response received:", resp.data);
+
+            // Add the AI response to messages
+            setMessages(prev => [...prev, {
+                ...resp.data,
+                fromSelf: false
+            }]);
+
+            // Refresh messages to ensure we have the latest from database
+            setTimeout(() => {
+                if (activeThreadId) {
+                    fetchMessagesForThread(activeThreadId);
+                }
+            }, 500);
 
         } catch (err) {
             console.error("Error sending message:", err);
-            // Remove the user message if there was an error
+            console.error("Error response:", err.response);
+
+            // Remove the optimistic user message
             setMessages(prev => prev.slice(0, -1));
 
             if (err.response?.status === 401) {
@@ -228,11 +251,28 @@ export default function HomeForm() {
                 setMessages(prev => [...prev, {
                     content: "Sorry, I couldn't process your message. Please try again.",
                     fromSelf: false,
-                    chatId: activeThreadId
+                    chatId: activeThreadId,
+                    id: Date.now(),
+                    createdAt: new Date().toISOString()
                 }]);
             }
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    // Helper function to fetch messages for a specific thread
+    const fetchMessagesForThread = async (threadId) => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            const res = await axios.get(`${API_URL}/messages/${threadId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setMessages(res.data);
+        } catch (err) {
+            console.error("Error fetching messages:", err);
         }
     };
 

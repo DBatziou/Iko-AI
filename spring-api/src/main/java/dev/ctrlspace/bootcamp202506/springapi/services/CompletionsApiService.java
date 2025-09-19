@@ -1,16 +1,19 @@
 package dev.ctrlspace.bootcamp202506.springapi.services;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.OutputStream;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Scanner;
 
 @Service
 public class CompletionsApiService {
@@ -18,86 +21,100 @@ public class CompletionsApiService {
     @Value("${llms.groq.key}")
     private String groqApiKey;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
-    public String getCompletion(String prompt) {
+    public CompletionsApiService() {
+        this.restTemplate = new RestTemplate();
+        this.objectMapper = new ObjectMapper();
+    }
+
+    public String getCompletion(String model, String userMessage) {
         try {
-            URL url = new URL("https://api.groq.com/openai/v1/chat/completions");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + groqApiKey);
-            conn.setDoOutput(true);
+            // Groq API endpoint
+            String url = "https://api.groq.com/openai/v1/chat/completions";
 
-            // JSON request body
-            String requestBody = """
-                    {
-                        "model": "llama-3.1-8b-instant",
-                        "messages": [
-                            {"role": "user", "content": "%s"}
-                        ]
+            // Create headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(groqApiKey);
+
+            // Create request body
+            GroqRequest request = new GroqRequest();
+            request.setModel(model);
+            request.setMessages(List.of(new GroqMessage("user", userMessage)));
+            request.setMaxTokens(1024);
+            request.setTemperature(0.7);
+
+            // Convert to JSON
+            String requestBody = objectMapper.writeValueAsString(request);
+
+            // Log the request body for debugging
+            System.out.println("Request body sent to Groq: " + requestBody);
+
+            // Create HTTP entity
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+            // Make the API call
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            // Log the raw response for debugging
+            System.out.println("Raw API response: " + response.getBody());
+
+            // Parse response using JsonNode for robustness
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode root = objectMapper.readTree(response.getBody());
+                JsonNode choices = root.path("choices");
+                if (!choices.isEmpty()) {
+                    JsonNode message = choices.get(0).path("message");
+                    String content = message.path("content").asText(null);
+                    if (content != null) {
+                        return content;
                     }
-                    """.formatted(prompt);
-
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(requestBody.getBytes());
-                os.flush();
-            }
-
-            int responseCode = conn.getResponseCode();
-            InputStream is = responseCode == 200 ? conn.getInputStream() : conn.getErrorStream();
-
-            try (Scanner scanner = new Scanner(is)) {
-                StringBuilder sb = new StringBuilder();
-                while (scanner.hasNextLine()) {
-                    sb.append(scanner.nextLine());
-                }
-
-                String jsonResponse = sb.toString();
-                GroqResponse response = objectMapper.readValue(jsonResponse, GroqResponse.class);
-
-                // return the AI's content
-                if (response.getChoices() != null && !response.getChoices().isEmpty()) {
-                    return response.getChoices().get(0).getMessage().getContent();
-                } else {
-                    return "No response from AI.";
                 }
             }
+
+            return "Sorry, I couldn't generate a response at this time.";
 
         } catch (Exception e) {
+            System.err.println("Error in getCompletion: " + e.getMessage());
             e.printStackTrace();
-            return "Error contacting AI: " + e.getMessage();
+            return "Error: " + e.getMessage();
         }
     }
 
-    // ====================== Response Classes ======================
+    // Inner classes with proper annotations
+    public static class GroqRequest {
+        private String model;
+        private List<GroqMessage> messages;
+        @JsonProperty("max_tokens")
+        private Integer maxTokens;
+        private Double temperature;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class GroqResponse {
-        private String id;
-        private List<GroqChoice> choices;
+        public String getModel() { return model; }
+        public void setModel(String model) { this.model = model; }
 
-        public String getId() { return id; }
-        public void setId(String id) { this.id = id; }
+        public List<GroqMessage> getMessages() { return messages; }
+        public void setMessages(List<GroqMessage> messages) { this.messages = messages; }
 
-        public List<GroqChoice> getChoices() { return choices; }
-        public void setChoices(List<GroqChoice> choices) { this.choices = choices; }
+        public Integer getMaxTokens() { return maxTokens; }
+        public void setMaxTokens(Integer maxTokens) { this.maxTokens = maxTokens; }
+
+        public Double getTemperature() { return temperature; }
+        public void setTemperature(Double temperature) { this.temperature = temperature; }
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class GroqChoice {
-        private GroqMessage message;
-
-        public GroqMessage getMessage() { return message; }
-        public void setMessage(GroqMessage message) { this.message = message; }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class GroqMessage {
         private String role;
         private String content;
 
         public GroqMessage() {}
+
         public GroqMessage(String role, String content) {
             this.role = role;
             this.content = content;
