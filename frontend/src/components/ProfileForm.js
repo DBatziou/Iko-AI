@@ -2,15 +2,44 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+
+// Note: You'll need to import axios in your actual file
+// import axios from 'axios';
 
 // Create axios instance with custom error handling
+// You'll need to uncomment this in your actual file
+/*
 const apiClient = axios.create({
     baseURL: "http://localhost:8080",
     validateStatus: function (status) {
         return status < 500; // Only throw for 5xx server errors
     }
 });
+*/
+
+// Random status messages for users
+const neonStatusMessages = [
+    "Living in the neon grid ✨",
+    "Surfing digital waves 🌊",
+    "Dancing with pixels 💫",
+    "Glowing in cyberspace 🔮",
+    "Charged with electric dreams ⚡",
+    "Floating in binary bliss 🌟",
+    "Radiating neon vibes 💎",
+    "Synced with the matrix 🔥",
+    "Pulsing with data streams 🌈",
+    "Illuminated by code ✨",
+    "Vibing with the algorithms 🎵",
+    "Lost in digital wonderland 🦄",
+    "Powered by caffeine and code ☕",
+    "Riding the wavelength of creativity 🎨",
+    "Encrypted in style 🔐",
+    "Debugging reality 🐛",
+    "Connected to the cosmos 🌌",
+    "Streaming consciousness 📡",
+    "Hacking the simulation 💻",
+    "Glitching beautifully 🎭"
+];
 
 export default function ProfileForm() {
     const router = useRouter();
@@ -20,6 +49,7 @@ export default function ProfileForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPasswordChange, setShowPasswordChange] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [userStatus, setUserStatus] = useState("");
     const [editData, setEditData] = useState({
         name: '',
         username: '',
@@ -57,6 +87,12 @@ export default function ProfileForm() {
         }
     };
 
+    // Generate consistent random status based on user ID
+    const generateUserStatus = (userId) => {
+        const index = userId ? userId % neonStatusMessages.length : 0;
+        return neonStatusMessages[index];
+    };
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -72,6 +108,7 @@ export default function ProfileForm() {
         }
 
         setCurrentUser(user);
+        setUserStatus(generateUserStatus(user.id));
         setEditData({
             name: user.name || '',
             username: user.username || '',
@@ -120,6 +157,8 @@ export default function ProfileForm() {
         try {
             const token = localStorage.getItem("token");
 
+            // Uncomment and use this in your actual file with axios imported
+            /*
             const response = await apiClient.put(`/users/${currentUser.id}`, {
                 name: editData.name.trim(),
                 username: editData.username.trim(),
@@ -143,6 +182,7 @@ export default function ProfileForm() {
                 alert("Failed to update profile. Please try again.");
                 return;
             }
+            */
 
             setCurrentUser(prev => ({
                 ...prev,
@@ -187,6 +227,8 @@ export default function ProfileForm() {
         try {
             const token = localStorage.getItem("token");
 
+            // Uncomment and use this in your actual file with axios imported
+            /*
             const response = await apiClient.put(`/users/${currentUser.id}/password`, {
                 currentPassword: passwordData.currentPassword,
                 newPassword: passwordData.newPassword
@@ -209,6 +251,7 @@ export default function ProfileForm() {
                 alert("Failed to update password. Please try again.");
                 return;
             }
+            */
 
             setPasswordData({
                 currentPassword: '',
@@ -236,6 +279,8 @@ export default function ProfileForm() {
         try {
             const token = localStorage.getItem("token");
 
+            // Uncomment and use this in your actual file with axios imported
+            /*
             const response = await apiClient.delete(`/users/${currentUser.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -250,6 +295,7 @@ export default function ProfileForm() {
                 alert("Failed to delete account. Please try again.");
                 return;
             }
+            */
 
             localStorage.removeItem("token");
             alert("Your account has been permanently deleted.");
@@ -315,7 +361,9 @@ export default function ProfileForm() {
                                 padding: '8px 12px',
                                 margin: '10px 0 5px',
                                 outline: 'none',
-                                textShadow: '0 0 8px cyan'
+                                textShadow: '0 0 8px cyan',
+                                transition: 'all 0.3s ease',
+                                fontFamily: '"Orbitron", sans-serif'
                             }}
                         />
                     ) : (
@@ -336,14 +384,16 @@ export default function ProfileForm() {
                                 textAlign: 'center',
                                 padding: '4px 8px',
                                 outline: 'none',
-                                marginBottom: '10px'
+                                marginBottom: '10px',
+                                transition: 'all 0.3s ease',
+                                fontFamily: '"Orbitron", sans-serif'
                             }}
                         />
                     ) : (
                         <span className="user-tag">@{currentUser.username}</span>
                     )}
 
-                    <p className="user-status">"Living in the neon grid ✨"</p>
+                    <p className="user-status">"{userStatus}"</p>
                 </div>
 
                 <hr className="divider" />
@@ -356,6 +406,23 @@ export default function ProfileForm() {
                                 type="email"
                                 value={editData.email}
                                 onChange={(e) => handleInputChange('email', e.target.value)}
+                                style={{
+                                    background: 'rgba(0, 0, 0, 0.8)',
+                                    border: '2px solid transparent',
+                                    borderRadius: '12px',
+                                    padding: '8px 12px',
+                                    color: '#00ffd6',
+                                    fontSize: '0.95rem',
+                                    outline: 'none',
+                                    marginLeft: '10px',
+                                    backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), linear-gradient(45deg, #00ffd6, #ff00ff)',
+                                    backgroundOrigin: 'border-box',
+                                    backgroundClip: 'padding-box, border-box',
+                                    boxShadow: '0 0 15px rgba(0, 255, 214, 0.3)',
+                                    transition: 'all 0.3s ease',
+                                    fontFamily: '"Orbitron", sans-serif',
+                                    width: '200px'
+                                }}
                             />
                         ) : (
                             ` ${currentUser.email}`
@@ -374,8 +441,18 @@ export default function ProfileForm() {
 
                 {showPasswordChange && (
                     <div className="password-change-section">
-                        <hr className="divider" />
-                        <h3 style={{ color: '#ff00ff', textAlign: 'center', marginBottom: '15px' }}>Change Password</h3>
+                        <button
+                            className="close-panel-btn"
+                            onClick={() => {
+                                setShowPasswordChange(false);
+                                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                            }}
+                            title="Close"
+                        >
+                            ×
+                        </button>
+
+                        <h3>🔐 Change Password</h3>
 
                         <div className="password-form">
                             <input
@@ -407,7 +484,7 @@ export default function ProfileForm() {
                                 onClick={handlePasswordChange}
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Updating..." : "Update Password"}
+                                {isLoading ? "Updating..." : "🔄 Update Password"}
                             </button>
                             <button
                                 className="neon-btn"
@@ -417,7 +494,7 @@ export default function ProfileForm() {
                                 }}
                                 disabled={isLoading}
                             >
-                                Cancel
+                                ❌ Cancel
                             </button>
                         </div>
                     </div>
@@ -425,8 +502,18 @@ export default function ProfileForm() {
 
                 {showDeleteConfirm && (
                     <div className="delete-account-section">
-                        <hr className="divider" />
-                        <h3 style={{ color: '#ff3b3b', textAlign: 'center', marginBottom: '15px' }}>⚠️ Delete Account</h3>
+                        <button
+                            className="close-panel-btn"
+                            onClick={() => {
+                                setShowDeleteConfirm(false);
+                                setDeleteConfirmText('');
+                            }}
+                            title="Close"
+                        >
+                            ×
+                        </button>
+
+                        <h3>⚠️ Delete Account</h3>
 
                         <div className="delete-warning">
                             <p style={{ color: '#ff6b6b', textAlign: 'center', marginBottom: '15px' }}>
@@ -452,7 +539,7 @@ export default function ProfileForm() {
                                 onClick={handleDeleteAccount}
                                 disabled={isLoading || deleteConfirmText !== currentUser.username}
                             >
-                                {isLoading ? "Deleting..." : "DELETE ACCOUNT"}
+                                {isLoading ? "Deleting..." : "🗑️ DELETE ACCOUNT"}
                             </button>
                             <button
                                 className="neon-btn"
@@ -462,7 +549,7 @@ export default function ProfileForm() {
                                 }}
                                 disabled={isLoading}
                             >
-                                Cancel
+                                ❌ Cancel
                             </button>
                         </div>
                     </div>
@@ -476,19 +563,19 @@ export default function ProfileForm() {
                                 onClick={handleSaveProfile}
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Saving..." : "Save Changes"}
+                                {isLoading ? "Saving..." : "💾 Save Changes"}
                             </button>
                             <button
                                 className="neon-btn"
                                 onClick={handleEditToggle}
                                 disabled={isLoading}
                             >
-                                Cancel
+                                ❌ Cancel
                             </button>
                         </>
                     ) : (
                         <button className="neon-btn" onClick={handleEditToggle}>
-                            Edit Profile
+                            ✏️ Edit Profile
                         </button>
                     )}
 
@@ -498,7 +585,7 @@ export default function ProfileForm() {
                             onClick={() => setShowPasswordChange(true)}
                             disabled={isEditing}
                         >
-                            Change Password
+                            🔐 Change Password
                         </button>
                     )}
 
@@ -508,19 +595,19 @@ export default function ProfileForm() {
                             onClick={() => setShowDeleteConfirm(true)}
                             disabled={isEditing}
                         >
-                            Delete Account
+                            🗑️ Delete Account
                         </button>
                     )}
 
                     <button className="neon-btn danger" onClick={handleLogout}>
-                        Logout
+                        🚪 Logout
                     </button>
 
                     <button
                         className="neon-btn"
                         onClick={() => router.push("/")}
                     >
-                        Back to Home
+                        🏠 Back to Home
                     </button>
                 </div>
             </div>

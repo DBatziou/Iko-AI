@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { Pen, RefreshCw } from "lucide-react";
 
 // Create axios instance with custom error handling
 const apiClient = axios.create({
@@ -687,7 +688,7 @@ export default function HomeForm() {
                                                         title="Edit message"
                                                         disabled={isLoading}
                                                     >
-                                                        ✏
+                                                        <Pen size={16} />
                                                     </button>
                                                 )}
                                                 {!m.fromSelf && (
@@ -697,7 +698,7 @@ export default function HomeForm() {
                                                         title="Regenerate response"
                                                         disabled={isLoading}
                                                     >
-                                                        {isLoading ? "..." : "🔄"}
+                                                        {isLoading ? "..." : "⟳"}
                                                     </button>
                                                 )}
                                             </div>

@@ -25,10 +25,12 @@
     border: 1px solid rgba(0, 255, 255, 0.2);
     border-radius: 15px;
     width: 400px;
-    margin-top: -80px; /* Overlap banner */
+    margin-top: -120px; /* Moved higher up */
     padding: 20px;
     text-align: center;
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
 }
 
 /* Avatar overlapping banner like Discord */
@@ -79,25 +81,422 @@
     line-height: 1.6;
 }
 
-/* Action buttons */
+/* Enhanced Action buttons with floating animation */
 .profile-actions {
     margin-top: 20px;
     display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Floating button animation keyframes */
+@keyframes floatButton {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-3px) rotate(1deg);
+    }
+    50% {
+        transform: translateY(2px) rotate(-1deg);
+    }
+    75% {
+        transform: translateY(-1px) rotate(0.5deg);
+    }
+}
+
+@keyframes floatButton2 {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-2px) rotate(-0.5deg);
+    }
+    66% {
+        transform: translateY(1px) rotate(1deg);
+    }
+}
+
+@keyframes floatButton3 {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    40% {
+        transform: translateY(-1px) rotate(0.5deg);
+    }
+    80% {
+        transform: translateY(-3px) rotate(-1deg);
+    }
+}
+
+/* Enhanced neon buttons with floating effect */
+.neon-btn {
+    background: linear-gradient(45deg, #00ffd6, #ff00ff);
+    border: none;
+    border-radius: 50px; /* Made fully round */
+    padding: 12px 24px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 255, 214, 0.5);
+    transition: all 0.3s ease;
+    animation: floatButton 4s ease-in-out infinite;
+    min-width: 120px;
+    font-family: "Orbitron", sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Different floating animations for variety */
+.neon-btn:nth-child(2) {
+    animation: floatButton2 4.5s ease-in-out infinite;
+    animation-delay: -0.5s;
+}
+
+.neon-btn:nth-child(3) {
+    animation: floatButton3 3.8s ease-in-out infinite;
+    animation-delay: -1s;
+}
+
+.neon-btn:nth-child(4) {
+    animation: floatButton 4.2s ease-in-out infinite;
+    animation-delay: -1.5s;
+}
+
+.neon-btn:nth-child(5) {
+    animation: floatButton2 3.6s ease-in-out infinite;
+    animation-delay: -2s;
+}
+
+.neon-btn:nth-child(6) {
+    animation: floatButton3 4.1s ease-in-out infinite;
+    animation-delay: -2.5s;
+}
+
+/* Hover effects */
+.neon-btn:hover {
+    transform: translateY(-5px) scale(1.05) !important;
+    box-shadow: 0 0 25px rgba(0, 255, 214, 0.8), 0 0 50px rgba(0, 255, 214, 0.4);
+    background: linear-gradient(45deg, #00ffd6, #ff00ff, #00ffd6);
+}
+
+/* Danger button styling */
+.neon-btn.danger {
+    background: linear-gradient(45deg, #ff3b3b, #ff6b6b);
+    box-shadow: 0 0 15px rgba(255, 59, 59, 0.5);
+}
+
+.neon-btn.danger:hover {
+    box-shadow: 0 0 25px rgba(255, 59, 59, 0.8), 0 0 50px rgba(255, 59, 59, 0.4);
+    background: linear-gradient(45deg, #ff3b3b, #ff6b6b, #ff3b3b);
+}
+
+/* Disabled state */
+.neon-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    animation: none;
+    transform: none !important;
+}
+
+/* Enhanced Password Change Section - Side Panel */
+.password-change-section {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    background: rgba(255, 0, 255, 0.45);
+    border: 2px solid rgba(255, 0, 255, 0.4);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.3), 0 0 50px rgba(255, 0, 255, 0.1);
+    animation: slideInLeft 0.3s ease-out, neonPulse 2s ease-in-out infinite 0.3s;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.password-change-section h3 {
+    color: #f5e1fa;
+    text-align: center;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px #ff00ff;
+}
+
+/* Enhanced Delete Account Section - Side Panel */
+.delete-account-section {
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 350px;
+    background: rgba(255, 59, 59, 0.15);
+    border: 2px solid rgba(255, 59, 59, 0.4);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(255, 59, 59, 0.3), 0 0 50px rgba(255, 59, 59, 0.1);
+    animation: slideInLeft 0.3s ease-out, neonPulseRed 2s ease-in-out infinite 0.3s;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.delete-account-section h3 {
+    color: #ff3b3b;
+    text-align: center;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px #ff3b3b;
+}
+
+/* Slide in animation for side panels - from left */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Neon input styling */
+.password-input, .delete-confirm-input {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #00ffd6;
+    font-size: 1rem;
+    outline: none;
+    margin: 8px 0;
+    width: 100%;
+    box-sizing: border-box;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+    linear-gradient(45deg, #00ffd6, #ff00ff);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    box-shadow: 0 0 20px rgba(0, 255, 214, 0.3),
+    inset 0 0 20px rgba(0, 255, 214, 0.1);
+    transition: all 0.3s ease;
+    font-family: "Orbitron", sans-serif;
+}
+
+.password-input:focus, .delete-confirm-input:focus {
+    box-shadow: 0 0 30px rgba(0, 255, 214, 0.6),
+    inset 0 0 30px rgba(0, 255, 214, 0.2),
+    0 0 50px rgba(0, 255, 214, 0.4);
+    transform: scale(1.02);
+    color: #ffffff;
+}
+
+.password-input::placeholder, .delete-confirm-input::placeholder {
+    color: rgba(0, 255, 214, 0.6);
+}
+
+/* Delete confirm input special styling */
+.delete-confirm-input {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+    linear-gradient(45deg, #ff3b3b, #ff6b6b);
+    box-shadow: 0 0 20px rgba(255, 59, 59, 0.3),
+    inset 0 0 20px rgba(255, 59, 59, 0.1);
+    color: #ff6b6b;
+}
+
+.delete-confirm-input:focus {
+    box-shadow: 0 0 30px rgba(255, 59, 59, 0.6),
+    inset 0 0 30px rgba(255, 59, 59, 0.2),
+    0 0 50px rgba(255, 59, 59, 0.4);
+    color: #ffffff;
+}
+
+.delete-confirm-input::placeholder {
+    color: rgba(255, 107, 107, 0.6);
+}
+
+/* Action button containers */
+.password-actions, .delete-actions {
+    margin-top: 15px;
+    display: flex;
     gap: 10px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
-.profile-actions .neon-btn.danger {
-    background: #ff3b3b;
+/* Pulsing animation for sections */
+@keyframes neonPulse {
+    0%, 100% {
+        box-shadow: 0 0 25px rgba(255, 0, 255, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(255, 0, 255, 0.4),
+        0 0 50px rgba(255, 0, 255, 0.2);
+    }
+}
+
+.delete-account-section {
+    animation: neonPulseRed 2s ease-in-out infinite;
+}
+
+@keyframes neonPulseRed {
+    0%, 100% {
+        box-shadow: 0 0 25px rgba(255, 59, 59, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(255, 59, 59, 0.4),
+        0 0 50px rgba(255, 59, 59, 0.2);
+    }
+}
+
+/* Enhanced form styling */
+.password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.delete-warning {
+    text-align: center;
+}
+
+.delete-warning p {
+    margin-bottom: 15px;
+}
+
+/* Edit profile inputs */
+.profile-info input {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #00ffd6;
+    border-radius: 8px;
+    color: #00ffd6;
+    font-size: inherit;
+    text-align: center;
+    padding: 8px 12px;
+    margin: 10px 0 5px;
+    outline: none;
+    text-shadow: 0 0 8px cyan;
+    transition: all 0.3s ease;
+    font-family: "Orbitron", sans-serif;
+}
+
+.profile-info input:focus {
+    box-shadow: 0 0 15px rgba(0, 255, 214, 0.6);
+    transform: scale(1.02);
+}
+
+.profile-details input {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 8px 12px;
+    color: #00ffd6;
+    font-size: 0.95rem;
+    outline: none;
+    margin-left: 10px;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+    linear-gradient(45deg, #00ffd6, #ff00ff);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    box-shadow: 0 0 15px rgba(0, 255, 214, 0.3);
+    transition: all 0.3s ease;
+    font-family: "Orbitron", sans-serif;
+    width: 200px;
+}
+
+.profile-details input:focus {
+    box-shadow: 0 0 20px rgba(0, 255, 214, 0.6);
+    transform: scale(1.02);
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .profile-card {
+        width: 90%;
+        margin: -100px 20px 0;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .neon-btn {
+        width: 200px;
+        margin: 5px 0;
+    }
+
+    .password-actions, .delete-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Mobile positioning for side panels */
+    .password-change-section,
+    .delete-account-section {
+        position: fixed;
+        top: 10%;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        transform: translateX(0);
+        max-height: 80vh;
+    }
+
+    /* Back home button mobile positioning */
+    .back-home-btn {
+        position: relative;
+        left: 0;
+        top: 0;
+        transform: none;
+        margin-top: 15px;
+        width: 200px;
+    }
+
+    .back-home-btn:hover {
+        transform: scale(1.05);
+    }
+}
+
+@media (max-width: 768px) {
+    /* Tablet positioning for back home button */
+    .back-home-btn {
+        left: -100px;
+    }
+}
+
+@media (min-width: 1200px) {
+    /* Large screen positioning for back home button */
+    .back-home-btn {
+        left: -150px;
+    }
+}
+
+/* Close button for side panels */
+.close-panel-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
     color: white;
-    box-shadow: 0 0 10px #ff3b3b;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
 }
 
-.profile-actions .neon-btn.danger:hover {
-    background: #ff5555;
-    box-shadow: 0 0 20px #ff3b3b;
+.close-panel-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
 }
-
-
-
-/**************************************************/

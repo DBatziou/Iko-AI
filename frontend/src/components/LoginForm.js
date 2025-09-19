@@ -51,9 +51,33 @@ export default function LoginForm() {
         setMessage("");
 
         try {
-            // Use the original userService login method
+            // Use custom apiClient to avoid Next.js error popups
             console.log("Logging in with:", login.username);
-            let token = await userService.loginApi(login.username, login.password);
+
+            // Create Basic Auth header
+            const credentials = btoa(`${login.username}:${login.password}`);
+            const response = await apiClient.get("/login", {
+                headers: {
+                    'Authorization': `Basic ${credentials}`
+                }
+            });
+
+            if (response.status === 401) {
+                setMessage("❌ Invalid username or password.");
+                return;
+            }
+
+            if (response.status === 400) {
+                setMessage("❌ Please check your credentials.");
+                return;
+            }
+
+            if (response.status !== 200) {
+                setMessage("❌ Login failed. Please try again.");
+                return;
+            }
+
+            const token = response.data.token;
             console.log(`Token received: ${token}`);
 
             // Store token in localStorage
@@ -63,18 +87,7 @@ export default function LoginForm() {
             window.location.href = "/";
         } catch (error) {
             console.error("Login error:", error);
-
-            // Better error handling
-            let errorMessage = "❌ Login failed. Please try again.";
-            if (error.response?.status === 401) {
-                errorMessage = "❌ Invalid username or password.";
-            } else if (error.response?.status === 500) {
-                errorMessage = "❌ Server error. Please try again later.";
-            } else if (error.message) {
-                errorMessage = `❌ ${error.message}`;
-            }
-
-            setMessage(errorMessage);
+            setMessage("❌ Server error. Please try again later.");
         } finally {
             setIsLoading(false);
         }
@@ -109,48 +122,64 @@ export default function LoginForm() {
 
         try {
             console.log("Signing up with:", signup.username);
-            let token = await userService.signupApi(
-                signup.username,
-                signup.password,
-                signup.name,
-                signup.email,
-                'SIMPLE_USER'
-            );
-            console.log(`Token received: ${token}`);
 
-            // Store token in localStorage
-            localStorage.setItem("token", token);
+            // Create user account
+            const signupResponse = await apiClient.post("/users", {
+                name: signup.name.trim(),
+                email: signup.email.trim(),
+                username: signup.username.trim(),
+                password: signup.password,
+                role: 'SIMPLE_USER'
+            });
 
-            // Redirect to home page
-            window.location.href = "/";
-        } catch (error) {
-            console.error("Signup error:", error);
-
-            // Better error handling for signup
-            let errorMessage = "❌ Signup failed. Please try again.";
-
-            if (error.response?.status === 400) {
-                const responseData = error.response.data;
-                if (typeof responseData === 'string') {
-                    if (responseData.includes('username') && responseData.includes('already exists')) {
-                        errorMessage = "❌ Username already exists. Please choose another.";
-                    } else if (responseData.includes('email') && responseData.includes('already exists')) {
-                        errorMessage = "❌ Email already exists. Please use another email.";
+            if (signupResponse.status === 400) {
+                const responseData = signupResponse.data;
+                if (responseData?.message) {
+                    if (responseData.message.includes('username') && responseData.message.includes('already exists')) {
+                        setMessage("❌ Username already exists. Please choose another.");
+                    } else if (responseData.message.includes('email') && responseData.message.includes('already exists')) {
+                        setMessage("❌ Email already exists. Please use another email.");
                     } else {
-                        errorMessage = `❌ ${responseData}`;
+                        setMessage(`❌ ${responseData.message}`);
                     }
-                } else if (responseData?.message) {
-                    errorMessage = `❌ ${responseData.message}`;
+                } else {
+                    setMessage("❌ Invalid signup data. Please check your information.");
                 }
-            } else if (error.response?.status === 409) {
-                errorMessage = "❌ Username or email already exists. Please try different credentials.";
-            } else if (error.response?.status === 500) {
-                errorMessage = "❌ Server error. Please try again later.";
-            } else if (error.message) {
-                errorMessage = `❌ ${error.message}`;
+                return;
             }
 
-            setMessage(errorMessage);
+            if (signupResponse.status === 409) {
+                setMessage("❌ Username or email already exists. Please try different credentials.");
+                return;
+            }
+
+            if (signupResponse.status !== 200) {
+                setMessage("❌ Signup failed. Please try again.");
+                return;
+            }
+
+            // After successful signup, login the user
+            const credentials = btoa(`${signup.username}:${signup.password}`);
+            const loginResponse = await apiClient.get("/login", {
+                headers: {
+                    'Authorization': `Basic ${credentials}`
+                }
+            });
+
+            if (loginResponse.status === 200) {
+                const token = loginResponse.data.token;
+                console.log(`Token received: ${token}`);
+                localStorage.setItem("token", token);
+                window.location.href = "/";
+            } else {
+                setMessage("✅ Account created successfully! Please login.");
+                setMode("login");
+                setLogin({username: signup.username.trim(), password: ""});
+            }
+
+        } catch (error) {
+            console.error("Signup error:", error);
+            setMessage("❌ Server error. Please try again later.");
         } finally {
             setIsLoading(false);
         }

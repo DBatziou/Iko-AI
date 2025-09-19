@@ -12,7 +12,14 @@ target/
 .settings
 .springBeans
 .sts4-cache
+
+# Ignore local environment files
 .env
+application-local.properties
+*.key
+target/
+.idea/
+
 
 ### IntelliJ IDEA ###
 .idea

@@ -23,6 +23,9 @@ public class CompletionsApiService {
     @Value("${llms.groq.key}")
     private String groqApiKey;
 
+    @Value("${llms.groq.system-prompt}")
+    private String systemPrompt;
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -53,10 +56,16 @@ public class CompletionsApiService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(groqApiKey);
 
-            // Create request body
+            // Create request body with system message
             GroqRequest request = new GroqRequest();
             request.setModel(actualModel);
-            request.setMessages(List.of(new GroqMessage("user", userMessage)));
+
+            // Add system message first, then user message
+            request.setMessages(List.of(
+                    new GroqMessage("system", systemPrompt),
+                    new GroqMessage("user", userMessage)
+            ));
+
             request.setMaxTokens(1024);
             request.setTemperature(0.7);
 
@@ -123,7 +132,7 @@ public class CompletionsApiService {
         }
     }
 
-    // Inner classes with proper annotations
+    // Inner classes remain the same
     public static class GroqRequest {
         private String model;
         private List<GroqMessage> messages;
