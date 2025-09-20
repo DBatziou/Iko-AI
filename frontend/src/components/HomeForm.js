@@ -9,7 +9,7 @@ import { Pen, RefreshCw } from "lucide-react";
 const apiClient = axios.create({
     baseURL: "http://localhost:8080",
     validateStatus: function (status) {
-        // Don't throw errors for any status code - let us handle them
+        // Don't throw errors for any status code - let me handle them
         return status < 500; // Only throw for 5xx server errors
     }
 });
@@ -33,7 +33,7 @@ export default function HomeForm() {
     const [editingMessageId, setEditingMessageId] = useState(null);
     const [editingMessageContent, setEditingMessageContent] = useState("");
 
-    // Updated AI models with current Groq models
+    // AI models with current Groq models
     const availableModels = [
         { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B" },
         { id: "llama-3.1-70b-versatile", name: "Llama 3.1 70B" },
