@@ -44,5 +44,6 @@ public class Message {
 
     // Add getter and setter for fromSelf
     public Boolean getFromSelf() { return fromSelf; }
+
     public void setFromSelf(Boolean fromSelf) { this.fromSelf = fromSelf; }
 }

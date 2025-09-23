@@ -1025,3 +1025,305 @@ body {
   background: rgba(0, 255, 214, 0.8);
   box-shadow: 0 0 10px rgba(0, 255, 214, 0.7);
 }
+
+/* ===============================
+   MARKDOWN STYLES FOR CHAT BUBBLES
+   =============================== */
+
+/* Headers */
+.md-h1 {
+  color: #00ffd6;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 16px 0 12px 0;
+  text-shadow: 0 0 10px rgba(0, 255, 214, 0.6);
+  border-bottom: 2px solid rgba(0, 255, 214, 0.4);
+  padding-bottom: 8px;
+  font-family: 'Courier New', monospace;
+}
+
+.md-h2 {
+  color: #ff00ff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 14px 0 10px 0;
+  text-shadow: 0 0 8px rgba(255, 0, 255, 0.6);
+  border-bottom: 1px solid rgba(255, 0, 255, 0.4);
+  padding-bottom: 6px;
+  font-family: 'Courier New', monospace;
+}
+
+.md-h3 {
+  color: #ffff00;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 12px 0 8px 0;
+  text-shadow: 0 0 6px rgba(255, 255, 0, 0.6);
+  font-family: 'Courier New', monospace;
+}
+
+/* Bold and Italic */
+.md-bold {
+  font-weight: bold;
+  color: #00ffd6;
+  text-shadow: 0 0 4px rgba(0, 255, 214, 0.4);
+}
+
+.md-italic {
+  font-style: italic;
+  color: #ff00ff;
+  text-shadow: 0 0 3px rgba(255, 0, 255, 0.3);
+}
+
+/* Links */
+.md-link {
+  color: #00ffaa;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 255, 170, 0.5);
+  transition: all 0.3s ease;
+  text-shadow: 0 0 4px rgba(0, 255, 170, 0.4);
+}
+
+.md-link:hover {
+  color: #ffffff;
+  border-bottom: 1px solid #00ffaa;
+  text-shadow: 0 0 8px rgba(0, 255, 170, 0.8);
+  background: rgba(0, 255, 170, 0.1);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+/* Code blocks */
+.md-code-block {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 255, 214, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+  box-shadow: 0 0 15px rgba(0, 255, 214, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.md-code-block code {
+  color: #00ffd6;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  text-shadow: 0 0 4px rgba(0, 255, 214, 0.3);
+  white-space: pre;
+  display: block;
+}
+
+/* Inline code */
+.md-inline-code {
+  background: rgba(0, 255, 214, 0.15);
+  color: #00ffd6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid rgba(0, 255, 214, 0.3);
+  text-shadow: 0 0 3px rgba(0, 255, 214, 0.4);
+}
+
+/* Blockquotes */
+.md-blockquote {
+  background: rgba(255, 0, 255, 0.1);
+  border-left: 4px solid #ff00ff;
+  padding: 12px 16px;
+  margin: 12px 0;
+  color: #e0c3fc;
+  font-style: italic;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
+  backdrop-filter: blur(3px);
+}
+
+.md-blockquote::before {
+  content: '"';
+  color: #ff00ff;
+  font-size: 2em;
+  opacity: 0.5;
+  margin-right: 8px;
+  vertical-align: top;
+  line-height: 0.8;
+}
+
+/* Lists */
+.md-list, .md-ordered-list {
+  margin: 12px 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.md-list-item, .md-ordered-item {
+  color: #d8bfff;
+  margin: 6px 0;
+  padding: 4px 0;
+  list-style: none;
+  position: relative;
+}
+
+.md-list-item::before {
+  content: '◆';
+  color: #00ffd6;
+  font-weight: bold;
+  position: absolute;
+  left: -16px;
+  text-shadow: 0 0 6px rgba(0, 255, 214, 0.6);
+}
+
+.md-ordered-list {
+  counter-reset: ordered-counter;
+}
+
+.md-ordered-item {
+  counter-increment: ordered-counter;
+}
+
+.md-ordered-item::before {
+  content: counter(ordered-counter) ".";
+  color: #ff00ff;
+  font-weight: bold;
+  position: absolute;
+  left: -20px;
+  text-shadow: 0 0 4px rgba(255, 0, 255, 0.6);
+}
+
+/* Tables */
+.md-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  background: rgba(0, 255, 214, 0.05);
+  border: 1px solid rgba(0, 255, 214, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 255, 214, 0.2);
+}
+
+.md-table-row {
+  border-bottom: 1px solid rgba(0, 255, 214, 0.2);
+}
+
+.md-table-row:last-child {
+  border-bottom: none;
+}
+
+.md-table-cell {
+  padding: 8px 12px;
+  color: #d8bfff;
+  background: rgba(0, 255, 214, 0.05);
+  transition: background 0.3s ease;
+  border-right: 1px solid rgba(0, 255, 214, 0.1);
+}
+
+.md-table-cell:last-child {
+  border-right: none;
+}
+
+.md-table-cell:hover {
+  background: rgba(0, 255, 214, 0.15);
+}
+
+.md-table-row:first-child .md-table-cell {
+  background: rgba(0, 255, 214, 0.2);
+  color: #00ffd6;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(0, 255, 214, 0.4);
+}
+
+/* ===============================
+   MARKDOWN CONTAINER WRAPPER
+   =============================== */
+
+/* Ensure proper spacing between markdown elements */
+.message-content > *:first-child {
+  margin-top: 0;
+}
+
+.message-content > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ===============================
+   SPECIAL EFFECTS FOR MARKDOWN
+   =============================== */
+
+/* Add subtle animations */
+.md-h1, .md-h2, .md-h3 {
+  animation: fadeInGlow 0.5s ease-in;
+}
+
+.md-code-block {
+  animation: slideInCode 0.4s ease-out;
+}
+
+.md-blockquote {
+  animation: slideInQuote 0.4s ease-out;
+}
+
+@keyframes fadeInGlow {
+  from {
+    opacity: 0;
+    text-shadow: none;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInCode {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInQuote {
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===============================
+   RESPONSIVE MARKDOWN
+   =============================== */
+
+@media (max-width: 768px) {
+  .md-h1 { font-size: 1.5rem; }
+  .md-h2 { font-size: 1.3rem; }
+  .md-h3 { font-size: 1.2rem; }
+
+  .md-code-block {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .md-table-cell {
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  .md-list, .md-ordered-list {
+    padding-left: 15px;
+  }
+
+  .md-list-item::before {
+    left: -12px;
+  }
+
+  .md-ordered-item::before {
+    left: -15px;
+  }
+}

@@ -3,6 +3,7 @@ package dev.ctrlspace.bootcamp202506.springapi.services;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.ctrlspace.bootcamp202506.springapi.models.Message;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +42,8 @@ public class CompletionsApiService {
         this.objectMapper = new ObjectMapper();
     }
 
-    public String getCompletion(String model, String userMessage) {
+    // New method with conversation history
+    public String getCompletionWithHistory(String model, List<Message> conversationHistory, String newUserMessage) {
         try {
             // Check if the requested model needs to be mapped to a current one
             String actualModel = modelMapping.getOrDefault(model, model);
@@ -56,16 +59,27 @@ public class CompletionsApiService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(groqApiKey);
 
-            // Create request body with system message
+            // Build message history for the API
+            List<GroqMessage> messages = new ArrayList<>();
+
+            // Add system message first
+            messages.add(new GroqMessage("system", systemPrompt));
+
+            // Add conversation history (limit to last 20 messages to avoid token limits)
+            int startIndex = Math.max(0, conversationHistory.size() - 20);
+            for (int i = startIndex; i < conversationHistory.size(); i++) {
+                Message msg = conversationHistory.get(i);
+                String role = msg.getFromSelf() ? "user" : "assistant";
+                messages.add(new GroqMessage(role, msg.getContent()));
+            }
+
+            // Add the new user message
+            messages.add(new GroqMessage("user", newUserMessage));
+
+            // Create request body
             GroqRequest request = new GroqRequest();
             request.setModel(actualModel);
-
-            // Add system message first, then user message
-            request.setMessages(List.of(
-                    new GroqMessage("system", systemPrompt),
-                    new GroqMessage("user", userMessage)
-            ));
-
+            request.setMessages(messages);
             request.setMaxTokens(1024);
             request.setTemperature(0.7);
 
@@ -105,7 +119,7 @@ public class CompletionsApiService {
             return "Sorry, I couldn't generate a response at this time.";
 
         } catch (HttpClientErrorException e) {
-            System.err.println("HTTP Error in getCompletion: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            System.err.println("HTTP Error in getCompletionWithHistory: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
 
             // Handle specific model deprecation errors
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
@@ -116,7 +130,7 @@ public class CompletionsApiService {
                     if (errorMessage.contains("decommissioned") || errorMessage.contains("deprecated")) {
                         System.err.println("Model " + model + " is deprecated, falling back to default model");
                         // Fallback to default model
-                        return getCompletion("llama-3.1-8b-instant", userMessage);
+                        return getCompletionWithHistory("llama-3.1-8b-instant", conversationHistory, newUserMessage);
                     }
                 } catch (Exception parseError) {
                     System.err.println("Error parsing error response: " + parseError.getMessage());
@@ -126,10 +140,15 @@ public class CompletionsApiService {
             return "Sorry, I encountered an error with the AI service. Please try again.";
 
         } catch (Exception e) {
-            System.err.println("Error in getCompletion: " + e.getMessage());
+            System.err.println("Error in getCompletionWithHistory: " + e.getMessage());
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
+    }
+
+    // Keep the old method for backwards compatibility
+    public String getCompletion(String model, String userMessage) {
+        return getCompletionWithHistory(model, new ArrayList<>(), userMessage);
     }
 
     // Inner classes remain the same

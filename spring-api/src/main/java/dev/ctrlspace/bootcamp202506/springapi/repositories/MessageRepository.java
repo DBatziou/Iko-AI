@@ -14,4 +14,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     // Delete all messages for a specific chat (used when deleting a chat)
     void deleteByChatId(Long chatId);
+
+
 }

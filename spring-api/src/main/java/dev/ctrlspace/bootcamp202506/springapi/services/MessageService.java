@@ -34,8 +34,11 @@ public class MessageService {
 
             System.out.println("User message saved: " + savedUserMessage.getContent());
 
-            // Get AI response using specified model
-            String aiResponse = completionsApiService.getCompletion(model, message.getContent());
+            // Get conversation history BEFORE generating AI response
+            List<Message> conversationHistory = messageRepository.findByChatIdOrderByCreatedAtAsc(message.getChatId());
+
+            // Get AI response using specified model with conversation history
+            String aiResponse = completionsApiService.getCompletionWithHistory(model, conversationHistory, message.getContent());
             System.out.println("AI response received: " + aiResponse);
 
             // Create and save AI message
@@ -124,8 +127,13 @@ public class MessageService {
                 promptToUse = userMessage.getContent();
             }
 
-            // Generate new AI response using specified model
-            String newAiResponse = completionsApiService.getCompletion(model, promptToUse);
+            // Get conversation history up to the point of regeneration
+            List<Message> conversationHistory = messageRepository.findByChatIdOrderByCreatedAtAsc(aiMessage.getChatId());
+            // Remove messages after the one we're regenerating to avoid confusion
+            conversationHistory.removeIf(msg -> msg.getCreatedAt().isAfter(aiMessage.getCreatedAt()) || msg.getId().equals(id));
+
+            // Generate new AI response using specified model with conversation history
+            String newAiResponse = completionsApiService.getCompletionWithHistory(model, conversationHistory, promptToUse);
 
             // Update the existing AI message
             aiMessage.setContent(newAiResponse);

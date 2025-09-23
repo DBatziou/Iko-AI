@@ -92,15 +92,63 @@ export default function HomeForm() {
     };
 
     // Function to render markdown-like content
+    // Enhanced function to render markdown content with full GitHub syntax support
     const renderMessageContent = (content) => {
         if (!content) return "";
 
-        return content
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`(.*?)`/g, '<code class="inline-code">$1</code>')
-            .replace(/```([\s\S]*?)```/g, '<pre class="code-block"><code>$1</code></pre>')
-            .replace(/\n/g, '<br>');
+        let processed = content
+            // Headers (must be processed first)
+            .replace(/^### (.*$)/gm, '<h3 class="md-h3">$1</h3>')
+            .replace(/^## (.*$)/gm, '<h2 class="md-h2">$1</h2>')
+            .replace(/^# (.*$)/gm, '<h1 class="md-h1">$1</h1>')
+
+            // Code blocks (process before inline code)
+            .replace(/```(\w+)?\n?([\s\S]*?)```/g, '<pre class="md-code-block"><code class="language-$1">$2</code></pre>')
+
+            // Inline code
+            .replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>')
+
+            // Blockquotes
+            .replace(/^> (.*$)/gm, '<blockquote class="md-blockquote">$1</blockquote>')
+
+            // Links [text](url)
+            .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" class="md-link" target="_blank" rel="noopener noreferrer">$1</a>')
+
+            // Bold and italic (process after links to avoid conflicts)
+            .replace(/\*\*([^*]+)\*\*/g, '<strong class="md-bold">$1</strong>')
+            .replace(/\*([^*]+)\*/g, '<em class="md-italic">$1</em>')
+
+            // Lists - collect consecutive list items
+            .replace(/^[\*\-\+] (.+)$/gm, '<li class="md-list-item">$1</li>')
+            .replace(/^\d+\. (.+)$/gm, '<li class="md-ordered-item">$1</li>')
+
+            // Tables - basic table support
+            .replace(/^\|(.+)\|$/gm, (match, content) => {
+                const cells = content.split('|').map(cell => cell.trim()).filter(cell => cell);
+                const cellHtml = cells.map(cell => `<td class="md-table-cell">${cell}</td>`).join('');
+                return `<tr class="md-table-row">${cellHtml}</tr>`;
+            });
+
+        // Wrap consecutive list items in proper list containers
+        processed = processed
+            .replace(/(<li class="md-list-item">[\s\S]*?<\/li>)(?!\s*<li class="md-list-item">)/g, (match) => {
+                return `<ul class="md-list">${match}</ul>`;
+            })
+            .replace(/(<li class="md-ordered-item">[\s\S]*?<\/li>)(?!\s*<li class="md-ordered-item">)/g, (match) => {
+                return `<ol class="md-ordered-list">${match}</ol>`;
+            });
+
+        // Wrap table rows in table container
+        if (processed.includes('md-table-row')) {
+            processed = processed.replace(/(<tr class="md-table-row">[\s\S]*?<\/tr>)+/g, (match) => {
+                return `<table class="md-table">${match}</table>`;
+            });
+        }
+
+        // Convert line breaks (do this last)
+        processed = processed.replace(/\n/g, '<br>');
+
+        return processed;
     };
 
     // Function to handle hint button clicks
