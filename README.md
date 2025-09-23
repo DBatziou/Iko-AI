@@ -43,6 +43,7 @@ Open Command Prompt as Admin:
 ```
 setx GROQ_API_KEY "YOUR_API_KEY_HERE"
 ```
+After setting the key you should always reopen your project. 
 
 3. **Spring Boot backend**
 ```
@@ -121,7 +122,8 @@ On this page, you can chat with Iko:
 - You can also access your profile by pressing the *Profile button*.
   <br>
   <br>
-  <img width="1918" height="874" alt="Screenshot_2" src="https://github.com/user-attachments/assets/a24539d1-128d-4e46-9057-af72b330b2bc" />
+  <img width="1916" height="869" alt="image" src="https://github.com/user-attachments/assets/c1f81d09-74fd-4a1f-a86a-aa1b67a1f8e9" />
+
   <br>
   <br>
 
